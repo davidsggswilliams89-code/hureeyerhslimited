@@ -131,14 +131,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// IMPORTANT: Replace these placeholders with Hureeyerhs Limited's OWN Firebase project settings.
+// Firebase project settings supplied for Hureeyerhs Limited.
 const firebaseConfig = {
-  apiKey: "YOUR_NEW_FIREBASE_API_KEY",
-  authDomain: "YOUR_NEW_PROJECT.firebaseapp.com",
-  projectId: "YOUR_NEW_PROJECT_ID",
-  storageBucket: "bob-26647.firebasestorage.app",
-  messagingSenderId: "YOUR_NEW_MESSAGING_SENDER_ID",
-  appId: "YOUR_NEW_APP_ID"
+  apiKey: "AIzaSyDqjy7nw50cqEfBK9JVzxwksZoiEoZQJoQ",
+  authDomain: "myschoolbook-registrar.firebaseapp.com",
+  projectId: "myschoolbook-registrar",
+  storageBucket: "myschoolbook-registrar.firebasestorage.app",
+  messagingSenderId: "884781436889",
+  appId: "1:884781436889:web:5b1afae69b3c579cf553c8"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -586,7 +586,7 @@ function uploadMedia() {
   if (status) status.textContent = "Choose product or service images/videos.";
   cloudinary.openUploadWidget({
     cloudName: "db92r6j9z",
-    uploadPreset: "ummuhalti",
+    uploadPreset: "Ummuhalti",
     sources: ["local", "camera"],
     multiple: true,
     resourceType: "auto",
@@ -709,7 +709,7 @@ function startAuto() {
 function uploadTestimonials() {
   if (typeof cloudinary === "undefined") return alert("Cloudinary is not loaded. Please refresh the page.");
   cloudinary.openUploadWidget({
-    cloudName: "db92r6j9z", uploadPreset: "ummuhalti",
+    cloudName: "db92r6j9z", uploadPreset: "Ummuhalti",
     sources: ["local","camera"], multiple: true, resourceType: "image"
   }, async (error, result) => {
     if (error) { console.error(error); alert("Upload failed ❌"); return; }
