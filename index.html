@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hureeyerhs Limited | Beauty, Home-Decor & Travel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hureeyerhs Limited — cosmetics, makeup, home decoration, travel and tour services.">
+  <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+  <style>
+    body{margin:0;font-family:Arial,sans-serif;background:#fff0f6;padding-top:68px}
+    .top-marquee{background:#111;position:fixed;top:0;width:100%;height:30px;display:flex;align-items:center;overflow:hidden;z-index:3000}
+    .logo{height:30px;margin:0;padding:0;object-fit:contain;background:#111;z-index:10}
+    .marquee-wrapper{position:absolute;width:100%;overflow:hidden;z-index:1}
+    .marquee-text{font-size:16px;font-weight:bold;white-space:nowrap;animation:move 12s linear infinite;color:white;margin-left:120px}
+    @keyframes move{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+    .admin{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:5000;padding:5px;overflow-y:auto;flex-direction:column;align-items:center;box-sizing:border-box}
+    .admin h3{width:100%;max-width:320px;margin:6px 0 4px;font-size:16px}
+    .admin hr{width:100%;max-width:320px;margin:6px 0;border:0;border-top:1px solid #ddd}
+    .admin .form-group{width:100%;max-width:320px;margin:3px 0}
+    .admin label{display:block;width:100%;font-size:13px;font-weight:bold;color:#222;margin-bottom:2px}
+    .admin input,.admin select{width:100%;max-width:320px;padding:8px;font-size:13px;border:1px solid #ccc;border-radius:8px;margin:2px 0;box-sizing:border-box}
+    .admin .btn{width:100%;max-width:320px;padding:9px;margin:4px 0;font-size:13px;border:none;border-radius:8px;cursor:pointer;text-align:center}
+    .category-bar{position:fixed;top:30px;width:100%;height:30px;display:flex;align-items:center;overflow-x:auto;z-index:2000;background:linear-gradient(90deg,#111111,#d63384);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .category-btn{display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:white;padding:5px 10px;margin:3px 4px;border-radius:18px;white-space:nowrap;cursor:pointer;font-size:15px;font-weight:500;transition:.2s}
+    .category-btn.active{background:#fff;color:#d63384}
+    .view{display:none;padding:0 10px 10px}
+    .active-view{display:block!important}
+    .card{background:white;border-radius:14px;padding:7px;margin-bottom:10px}
+    .img-wrap{position:relative;overflow:hidden;border-radius:12px}
+    .new-badge{position:absolute;top:8px;left:8px;background:#b00020;color:white;font-size:11px;padding:4px 6px;border-radius:5px;z-index:10}
+    .carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;width:100%;aspect-ratio:9/16;border-radius:12px;-webkit-overflow-scrolling:touch}
+    .carousel::-webkit-scrollbar,.testimonial-carousel::-webkit-scrollbar,div::-webkit-scrollbar{display:none}
+    .carousel video{flex:0 0 100%;width:100%;aspect-ratio:9/16;height:auto;object-fit:cover;scroll-snap-align:start;border-radius:12px;background:#000;display:block}
+    .video-container{position:relative;flex:0 0 100%;width:100%;aspect-ratio:9/16;height:auto;scroll-snap-align:start;border-radius:12px;overflow:hidden;background:#000}
+    .video-container video{width:100%;height:100%;object-fit:cover;display:block}
+    .video-sound-btn{position:absolute;left:12px;bottom:12px;width:38px;height:38px;border:none;border-radius:50%;background:rgba(0,0,0,.65);color:white;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;backdrop-filter:blur(4px)}
+    .video-sound-btn:active{transform:scale(.9)}
+    .carousel img{flex:0 0 100%;width:100%;aspect-ratio:9/16;height:auto;object-fit:cover;scroll-snap-align:start;border-radius:12px}
+    .social-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 10px;border-radius:18px;color:#fff;font-size:11px;font-weight:500;width:fit-content;max-width:120px;white-space:nowrap;flex-shrink:0}
+    .social-btn img{width:18px;height:18px;object-fit:contain}
+    .dots{text-align:center;margin-top:5px}
+    .dot{height:8px;width:8px;margin:0 3px;background:#bbb;border-radius:50%;display:inline-block}
+    .dot.active{background:#d63384}
+    .buy-btn,.price-btn{box-sizing:border-box;width:100%;min-height:40px;padding:9px;margin-top:6px;border-radius:10px;font-weight:bold;font-size:16px;display:flex;align-items:center;justify-content:center;text-align:center;gap:10px;cursor:pointer}.buy-btn{background:#d63384;color:white;border:none}.price-btn{background:#111;color:#fff;border:1px solid #111;cursor:default}
+    input,select{width:100%;max-width:320px;padding:10px;margin:5px 0;box-sizing:border-box}
+    .btn{width:100%;padding:10px;background:green;color:white;border:none;margin-top:5px;cursor:pointer}
+    .admin-item,.testimonial-item{display:flex;align-items:center;gap:10px;background:#f2f2f2;padding:8px;margin:5px 0;border-radius:6px}
+    .delete-btn{background:red;color:white;border:none;padding:6px;cursor:pointer}
+    /* Testimonials should fit the image naturally, not inherit the tall 9:16 product-video frame. */
+    .testimonial-carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;border-radius:12px;aspect-ratio:auto;height:auto;margin-bottom:0;padding-bottom:0}
+    .testimonial-carousel img{display:block;flex:0 0 100%;width:100%;min-width:100%;height:auto;max-height:none;aspect-ratio:auto;object-fit:contain;scroll-snap-align:start;background:white;border-radius:12px}
+    #testimonialDots{margin-top:2px;margin-bottom:0;line-height:8px}
+    .testimonial-item img{width:40px;height:40px;object-fit:cover;border-radius:5px}
+    .fb{background:#111}.wa{background:#25D366}
+    .carousel,.video-container{margin-top:0!important}
+    .muted-note{font-size:13px;color:#555}
+  </style>
+</head>
+<body>
+  <div class="top-marquee">
+    <img src="logo.png" class="logo" id="brandLogo" alt="Hureeyerhs Limited logo" title="Hureeyerhs Limited">
+    <div class="marquee-wrapper"><div class="marquee-text">HUREEYERHS LIMITED 💗 • COSMETIC • MAKE UP • HOME-DECOR • TRAVEL AND TOUR •</div></div>
+  </div>
+
+  <div class="category-bar" id="categoryBar"></div>
+
+  <div id="aboutView" class="view active-view">
+    <div class="card">
+      <h3 style="text-align:center">What Our Customers Say 💬</h3>
+      <div class="carousel testimonial-carousel" id="testimonialCarousel"></div>
+      <div class="dots" id="testimonialDots"></div>
+      <hr>
+      <h2 style="text-align:center">Welcome to Hureeyerhs Limited 💗</h2>
+      <h3 style="text-align:center">Beauty • Home-Decor • Travel & Tour</h3>
+      <p style="text-align:center">Your destination for beauty, makeup, home decoration, and travel experiences.</p>
+      <hr>
+      <h3>About Hureeyerhs Limited</h3>
+      <p><strong>HUREEYERHS LIMITED</strong> is a lifestyle company bringing together cosmetics, makeup, home decoration, and travel and tour services. We aim to offer quality choices, dependable service, and a welcoming customer experience.</p>
+      <p>Our four services are Hureeyerhs Cosmetic, Hureeyerhs Make Up, Hureeyerhs Home-Decor, and Hureeyerhs Travel and Tour. Products and service offers can be managed through the admin panel.</p>
+      <p>At <strong>HUREEYERHS LIMITED</strong>, we value quality, creativity, customer satisfaction, and dependable service. Contact us for product details, orders, and travel enquiries.</p>
+      <hr>
+      <h3>Our Location</h3>
+      <p><strong>📍 Nigeria</strong><br>Visit or contact us for store location details.</p>
+      <hr>
+      <h3>Contact & Business Info</h3>
+      <p>💬 WhatsApp orders and enquiries<br>💄 Cosmetics and makeup<br>🏠 Home decoration<br>✈️ Travel and tour enquiries</p>
+      <p>📞 Call us: <a href="tel:">Add your business phone number</a></p>
+      <hr>
+      <h3>Connect With Hureeyerhs</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding-bottom:5px">
+        <a href="https://www.facebook.com/" target="_blank" rel="noopener" style="text-decoration:none"><div class="social-btn fb"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="">Facebook</div></a>
+        <a href="https://wa.me/" target="_blank" rel="noopener" style="text-decoration:none"><div class="social-btn wa"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="">WhatsApp</div></a>
+        <a href="tel:" style="text-decoration:none"><div class="social-btn"><span aria-hidden="true">📞</span> Call Us</div></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin" id="adminPanel">
+    <h3>HUREEYERHS LIMITED — Admin Panel</h3>
+    <p class="muted-note">Add products or service offers to your store.</p>
+    <div class="form-group"><label for="aName">Product Name</label><input id="aName" placeholder="e.g. Hydrating Face Cream"></div>
+    <div class="form-group"><label for="aPrice">Product Price (₦)</label><input id="aPrice" type="number" min="1100" step="1" inputmode="numeric" placeholder="e.g. 2000"></div>
+    <div class="form-group"><label for="aCategory">Category</label><select id="aCategory"></select></div>
+    <button class="btn" onclick="uploadMedia()">📷🎥 Upload Images / Videos</button>
+    <p id="uploadStatus" class="muted-note">No media selected yet.</p>
+    <button class="btn" onclick="addProduct()">Save Product</button>
+    <hr>
+    <h3>Delete Category</h3>
+    <div class="form-group"><label for="catDelete">Select Category</label><select id="catDelete"></select></div>
+    <button class="btn" onclick="deleteCategory()">Delete Category</button>
+    <hr>
+    <h3>Delete Product</h3>
+    <select id="delCat" onchange="loadDelete()" aria-label="Select product category"></select>
+    <div id="delList"></div>
+    <hr>
+    <h3>Testimonials</h3>
+    <button class="btn" onclick="uploadTestimonials()">Upload Testimonials</button>
+    <hr>
+    <h3>Manage Testimonials</h3>
+    <div id="testimonialList"></div>
+    <hr>
+    <h3>Add Category</h3>
+    <input id="newCat" placeholder="e.g. Makeup Accessories">
+    <button class="btn" onclick="addCategory()">Add Category</button>
+    <hr>
+    <button class="btn" onclick="logoutAdmin()" style="background:red">Logout</button>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// IMPORTANT: Replace these placeholders with Hureeyerhs Limited's OWN Firebase project settings.
+const firebaseConfig = {
+  apiKey: "YOUR_NEW_FIREBASE_API_KEY",
+  authDomain: "YOUR_NEW_PROJECT.firebaseapp.com",
+  projectId: "YOUR_NEW_PROJECT_ID",
+  storageBucket: "bob-26647.firebasestorage.app",
+  messagingSenderId: "YOUR_NEW_MESSAGING_SENDER_ID",
+  appId: "YOUR_NEW_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+window.db = db;
+window.auth = auth;
+window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+window.signOut = signOut;
+window.fb = { collection, addDoc, getDocs, deleteDoc, doc };
+window.firebaseReady = true;
+window.dispatchEvent(new Event("firebase-ready"));
+</script>
+
+<script>
+"use strict";
+
+/* HUREEYERHS LIMITED — single, consolidated application script */
+let categories = [];
+let products = [];
+let uploadedImages = [];
+let uploadedVideos = [];
+let testimonials = [];
+let tIndex = 0;
+let tAuto = null;
+let adminPanel, delCat, delList, aName, aPrice, aCategory, aboutView;
+
+const WHATSAPP_NUMBER = ""; // Add Hureeyerhs Limited WhatsApp number without + or spaces.
+const DEFAULT_CATEGORIES = [
+  "Hureeyerhs Cosmetic", "Hureeyerhs Make Up", "Hureeyerhs Home-Decor", "Hureeyerhs Travel and Tour"
+];
+
+document.addEventListener("DOMContentLoaded", () => {
+  const logo = document.getElementById("brandLogo");
+  let logoClicks = 0;
+  let resetClickTimer = null;
+
+  if (logo) {
+    logo.style.cursor = "pointer";
+    logo.setAttribute("role", "button");
+    logo.setAttribute("tabindex", "0");
+    logo.setAttribute("aria-label", "Hureeyerhs Limited logo");
+
+    const countLogoClick = () => {
+      logoClicks += 1;
+      clearTimeout(resetClickTimer);
+      resetClickTimer = setTimeout(() => { logoClicks = 0; }, 2500);
+
+      if (logoClicks >= 7) {
+        logoClicks = 0;
+        clearTimeout(resetClickTimer);
+        openAdmin();
+      }
+    };
+
+    logo.addEventListener("click", countLogoClick);
+    logo.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        countLogoClick();
+      }
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", initApp);
+
+async function initApp() {
+  adminPanel = document.getElementById("adminPanel");
+  delCat = document.getElementById("delCat");
+  delList = document.getElementById("delList");
+  aName = document.getElementById("aName");
+  aPrice = document.getElementById("aPrice");
+  aCategory = document.getElementById("aCategory");
+  aboutView = document.getElementById("aboutView");
+
+  try {
+    await waitForFirebase();
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
+    showFirebaseError(error);
+    return;
+  }
+  try {
+    await loadCategoriesFromFirebase();
+  } catch (error) {
+    console.error("Could not load categories from Firestore:", error);
+    categories = [...DEFAULT_CATEGORIES];
+    loadCategories();
+    fillCats();
+    showFirebaseError(error, "Categories are temporary until Firestore access is fixed.");
+  }
+  try {
+    await loadProductsFromFirebase();
+  } catch (error) {
+    console.error("Could not load products from Firestore:", error);
+    products = [];
+    showFirebaseError(error, "Products could not load. Check Firestore database and rules.");
+  }
+  try {
+    await loadTestimonialsFromFirebase();
+  } catch (error) {
+    console.error("Could not load testimonials from Firestore:", error);
+    testimonials = [];
+    loadTestimonials();
+    showFirebaseError(error, "Testimonials could not load. Check Firestore database and rules.");
+  }
+  loadCategories();
+  restoreActiveView();
+  console.log("HUREEYERHS LIMITED storefront initialized.");
+}
+
+function waitForFirebase(timeout = 10000) {
+  if (window.firebaseReady && window.db && window.fb) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("Firebase did not initialize within 10 seconds.")), timeout);
+    window.addEventListener("firebase-ready", () => { clearTimeout(timer); resolve(); }, { once: true });
+  });
+}
+
+function showFirebaseError(error, detail = "") {
+  const bar = document.getElementById("categoryBar");
+  if (bar) {
+    let message = "Firebase issue";
+    const code = String(error?.code || "");
+    if (code.includes("permission-denied") || code.includes("unauthorized")) message = "Firestore permission denied — update Firebase Rules";
+    else if (code.includes("unavailable") || code.includes("network")) message = "Network/Firebase unavailable — check internet and project setup";
+    else if (code.includes("not-found")) message = "Firestore database not found — create Cloud Firestore";
+    else if (error?.message) message = error.message;
+    const text = [message, detail].filter(Boolean).join(" • ");
+    let status = document.getElementById("firebaseStatus");
+    if (!status) {
+      status = document.createElement("div");
+      status.id = "firebaseStatus";
+      status.style.cssText = "color:white;font-size:11px;padding:6px 8px;white-space:nowrap";
+      bar.appendChild(status);
+    }
+    status.textContent = text;
+  }
+  console.error("Firebase error:", error?.code || "unknown", error?.message || error);
+}
+
+function getDataValue(data, keys) {
+  for (const key of keys) {
+    const value = data?.[key];
+    if (value !== undefined && value !== null && value !== "") return value;
+  }
+  return null;
+}
+
+function normalizeArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (typeof value === "string" && value.trim()) return value.split(",").map(v => v.trim()).filter(Boolean);
+  return [];
+}
+
+function parsePrice(value) {
+  if (value === undefined || value === null || value === "") return 0;
+  const parsed = Number(String(value).replace(/[^0-9.]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatNaira(value) {
+  return "₦" + parsePrice(value).toLocaleString("en-NG", { maximumFractionDigits: 0 });
+}
+
+function normalizeProduct(docItem) {
+  const data = docItem.data() || {};
+  let images = normalizeArray(getDataValue(data, ["images","imageUrls","imageURLs","imageUrl","image","photo","photos"]));
+  let videos = normalizeArray(getDataValue(data, ["videos","videoUrls","videoURLs","videoUrl","video"]));
+  const media = normalizeArray(data.media);
+  images = images.map(v => typeof v === "object" ? (v.secure_url || v.url || v.src || "") : v).filter(Boolean);
+  videos = videos.map(v => typeof v === "object" ? (v.secure_url || v.url || v.src || "") : v).filter(Boolean);
+  if (!images.length && !videos.length && media.length) {
+    for (const item of media) {
+      const url = typeof item === "object" ? (item.secure_url || item.url || item.src) : item;
+      const type = typeof item === "object" ? (item.resource_type || item.type || "") : "";
+      if (!url) continue;
+      if (type === "video" || /\.(mp4|mov|webm)(\?|$)/i.test(url)) videos.push(url);
+      else images.push(url);
+    }
+  }
+  return {
+    id: docItem.id, ...data,
+    name: String(getDataValue(data, ["name","productName","title"]) || "Hureeyerhs Product"),
+    price: parsePrice(getDataValue(data, ["price","productPrice","amount"])),
+    category: String(getDataValue(data, ["category","cat","categoryName"]) || "").trim(),
+    images, videos,
+    date: Number(getDataValue(data, ["date","createdAt","timestamp"]) || 0)
+  };
+}
+
+async function loadCategoriesFromFirebase() {
+  const snap = await fb.getDocs(fb.collection(db, "categories"));
+  categories = [];
+  snap.forEach(item => {
+    const raw = getDataValue(item.data() || {}, ["name","category","title"]);
+    if (raw) {
+      const name = String(raw).trim();
+      if (name && name.toLowerCase() !== "workshop" && !categories.some(c => c.toLowerCase() === name.toLowerCase())) categories.push(name);
+    }
+  });
+  /* Seed textile categories only when the new project's category collection is empty. */
+  if (!categories.length) {
+    for (const name of DEFAULT_CATEGORIES) {
+      await fb.addDoc(fb.collection(db, "categories"), { name, createdAt: Date.now() });
+    }
+    categories = [...DEFAULT_CATEGORIES];
+  }
+  categories = [...new Set(categories)].sort((a,b) => a.localeCompare(b));
+  loadCategories();
+  fillCats();
+}
+
+function loadCategories() {
+  const bar = document.getElementById("categoryBar");
+  if (!bar) return;
+  bar.innerHTML = "";
+  const entries = [{ label: "HOME", value: "about" }, ...categories.map(name => ({ label: name.toUpperCase(), value: name }))];
+  entries.forEach((entry, index) => {
+    const button = document.createElement("div");
+    button.className = "category-btn";
+    button.textContent = entry.label;
+    button.dataset.category = entry.value;
+    button.addEventListener("click", () => showView(entry.value, button));
+    bar.appendChild(button);
+  });
+  const saved = localStorage.getItem("hureeyerhsActiveView") || "about";
+  const active = [...bar.querySelectorAll(".category-btn")].find(b => b.dataset.category === saved);
+  (active || bar.querySelector(".category-btn"))?.classList.add("active");
+}
+
+function fillCats() {
+  const all = [...new Set(categories)];
+  const html = all.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c.toUpperCase())}</option>`).join("");
+  ["delCat","catDelete","aCategory"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const previous = el.value;
+      el.innerHTML = html;
+      if (all.includes(previous)) el.value = previous;
+    }
+  });
+}
+
+async function addCategory() {
+  const input = document.getElementById("newCat");
+  const newCat = input.value.trim();
+  if (!newCat) return alert("Please enter a category name.");
+  if (categories.includes(newCat)) return alert("This category already exists.");
+  try {
+    await fb.addDoc(fb.collection(db, "categories"), { name: newCat, createdAt: Date.now() });
+    input.value = "";
+    await loadCategoriesFromFirebase();
+    alert("Category added successfully ✅");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to add category ❌\n" + (error.code || error.message || ""));
+  }
+}
+
+async function deleteCategory() {
+  const cat = document.getElementById("catDelete")?.value;
+  if (!cat) return;
+  if (!confirm(`Delete the "${cat}" category? Products in Firestore will not be deleted.`)) return;
+  try {
+    const snap = await fb.getDocs(fb.collection(db, "categories"));
+    for (const item of snap.docs) {
+      const raw = getDataValue(item.data() || {}, ["name","category","title"]);
+      if (String(raw || "").trim().toLowerCase() === cat) await fb.deleteDoc(fb.doc(db, "categories", item.id));
+    }
+    categories = categories.filter(c => c !== cat);
+    loadCategories();
+    fillCats();
+    alert("Category deleted successfully. Products were kept.");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete category ❌\n" + (error.code || error.message || ""));
+  }
+}
+
+function safeType(type) {
+  return String(type || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function showView(type, el) {
+  document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", b === el || (!el && b.dataset.category === type)));
+  localStorage.setItem("hureeyerhsActiveView", type);
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active-view"));
+  if (type === "about") {
+    aboutView?.classList.add("active-view");
+    return;
+  }
+
+  const safe = safeType(type);
+  let view = document.getElementById(safe + "View");
+  if (!view) {
+    view = document.createElement("div");
+    view.id = safe + "View";
+    view.className = "view";
+    document.body.appendChild(view);
+  }
+
+  const list = products.filter(p => String(p.category || "").trim().toLowerCase() === String(type).trim().toLowerCase());
+  view.innerHTML = list.length ? list.map((p, i) => {
+    const media = buildMedia(p);
+    const carouselId = `car-${safe}-${i}`;
+    const dotsId = `dots-${safe}-${i}`;
+    return `<div class="card"><div class="img-wrap">${isNewProduct(p) ? '<div class="new-badge">NEW</div>' : ''}<div class="carousel" id="${carouselId}">${media}</div></div><div class="dots" id="${dotsId}"></div><div class="price-btn" aria-label="Product price">${formatNaira(p.price)}</div><button class="buy-btn" onclick="buyNow(${i}, '${escapeAttr(type)}')">ENQUIRE / BUY NOW</button></div>`;
+  }).join("") : `<div class="card"><h3 style="text-align:center">${escapeHtml(type.toUpperCase())}</h3><p style="text-align:center">No products uploaded yet. Please check back soon.</p></div>`;
+  view.classList.add("active-view");
+  list.forEach((p, i) => {
+    setupCarousel(type, i);
+    setupVideoAutoplay(document.getElementById(`car-${safe}-${i}`));
+  });
+}
+
+function isNewProduct(p) {
+  const date = Number(p.date || 0);
+  return date > 0 && Date.now() - date < 86400000;
+}
+
+function buildMedia(p) {
+  let html = "";
+  (p.images || []).forEach(url => {
+    html += `<img src="${escapeAttr(url)}" loading="lazy" alt="${escapeAttr(p.name)}" onerror="this.style.display='none'">`;
+  });
+  (p.videos || []).forEach(url => {
+    html += `<div class="video-container"><video src="${escapeAttr(url)}" muted playsinline loop preload="metadata"></video><button class="video-sound-btn" onclick="toggleVideoSound(this)" aria-label="Toggle video sound">🔇</button></div>`;
+  });
+  return html || `<div style="width:100%;aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;background:#111;color:white;border-radius:12px">No media available</div>`;
+}
+
+function setupCarousel(type, i) {
+  const safe = safeType(type);
+  const carousel = document.getElementById(`car-${safe}-${i}`);
+  const box = document.getElementById(`dots-${safe}-${i}`);
+  if (!carousel || !box) return;
+  const media = carousel.querySelectorAll("img, .video-container");
+  box.innerHTML = "";
+  media.forEach((_, index) => {
+    const dot = document.createElement("span");
+    dot.className = "dot" + (index === 0 ? " active" : "");
+    box.appendChild(dot);
+  });
+  const dots = box.querySelectorAll(".dot");
+  carousel.onscroll = () => {
+    if (!carousel.clientWidth) return;
+    const index = Math.round(carousel.scrollLeft / carousel.clientWidth);
+    dots.forEach(dot => dot.classList.remove("active"));
+    dots[index]?.classList.add("active");
+  };
+}
+
+function setupVideoAutoplay(carousel) {
+  if (!carousel || !("IntersectionObserver" in window)) return;
+  const videos = carousel.querySelectorAll("video");
+  videos.forEach(video => {
+    video.muted = true;
+    video.playsInline = true;
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+          document.querySelectorAll(".carousel video").forEach(other => {
+            if (other !== video) { other.pause(); other.currentTime = 0; }
+          });
+          video.play().catch(() => {});
+        } else video.pause();
+      });
+    }, { threshold: [0, 0.6, 1] });
+    observer.observe(video);
+  });
+}
+
+function toggleVideoSound(button) {
+  const video = button?.closest(".video-container")?.querySelector("video");
+  if (!video) return;
+  if (video.muted) {
+    document.querySelectorAll(".carousel video").forEach(other => { other.muted = other !== video; });
+    document.querySelectorAll(".video-sound-btn").forEach(otherButton => { otherButton.textContent = otherButton === button ? "🔊" : "🔇"; });
+    video.muted = false;
+    video.volume = 1;
+    video.play().catch(() => {});
+  } else {
+    video.muted = true;
+    button.textContent = "🔇";
+  }
+}
+
+function contactWhatsApp() {
+  if (!WHATSAPP_NUMBER) {
+    alert("Please add Hureeyerhs Limited WhatsApp number in WHATSAPP_NUMBER in index.html.");
+    return;
+  }
+  window.open("https://wa.me/" + WHATSAPP_NUMBER, "_blank", "noopener");
+}
+
+function buyNow(i, type) {
+  const list = products.filter(p => String(p.category || "").toLowerCase() === String(type || "").toLowerCase());
+  const product = list[i];
+  if (!product) return;
+  const safe = safeType(type);
+  const carousel = document.getElementById(`car-${safe}-${i}`);
+  const index = carousel?.clientWidth ? Math.round(carousel.scrollLeft / carousel.clientWidth) : 0;
+  const mediaList = [...(product.images || []), ...(product.videos || [])];
+  const selectedMedia = mediaList[index] || mediaList[0] || "No media attached";
+  const message = `Hello, Hureeyerhs Limited. I am interested in this item:\n\nProduct: ${product.name || "N/A"}\nCategory: ${String(type).toUpperCase()}\nProduct media: ${selectedMedia}\n\nPlease confirm availability and price.`;
+  if (!WHATSAPP_NUMBER) {
+    alert("Please set Hureeyerhs Limited WhatsApp number in WHATSAPP_NUMBER before enabling orders.");
+    return;
+  }
+  window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message), "_blank", "noopener");
+}
+
+async function openAdmin() {
+  const email = prompt("Enter Hureeyerhs Limited admin email");
+  if (!email) return;
+  const password = prompt("Enter admin password");
+  if (!password) return;
+  try {
+    await waitForFirebase();
+    await window.signInWithEmailAndPassword(window.auth, email, password);
+    adminPanel.style.display = "flex";
+    fillCats();
+    loadDelete();
+    loadTestimonialAdmin();
+    alert("Admin login successful ✅");
+  } catch (error) {
+    console.error(error);
+    alert("Admin login failed ❌\n" + (error.code || error.message || "Check Firebase Authentication setup."));
+  }
+}
+
+async function logoutAdmin() {
+  try { await window.signOut(window.auth); } catch (error) { console.error(error); }
+  adminPanel.style.display = "none";
+  alert("Logged out.");
+}
+
+function uploadMedia() {
+  if (typeof cloudinary === "undefined") return alert("Upload tool not loaded. Refresh the page.");
+  uploadedImages = [];
+  uploadedVideos = [];
+  const status = document.getElementById("uploadStatus");
+  if (status) status.textContent = "Choose product or service images/videos.";
+  cloudinary.openUploadWidget({
+    cloudName: "db92r6j9z",
+    uploadPreset: "ummuhalti",
+    sources: ["local", "camera"],
+    multiple: true,
+    resourceType: "auto",
+    clientAllowedFormats: ["jpg","jpeg","png","webp","mp4","mov","webm"]
+  }, (error, result) => {
+    if (error) { console.error(error); alert("Upload failed ❌"); return; }
+    if (result?.event === "success") {
+      const url = result.info?.secure_url;
+      if (!url) return;
+      if (result.info.resource_type === "video") uploadedVideos.push(url);
+      else uploadedImages.push(url);
+      if (status) status.textContent = `Selected ${uploadedImages.length} image(s) and ${uploadedVideos.length} video(s).`;
+    }
+    if (result?.event === "close") {
+      const total = uploadedImages.length + uploadedVideos.length;
+      if (status) status.textContent = total ? `${uploadedImages.length} image(s), ${uploadedVideos.length} video(s) ready to save.` : "No media selected yet.";
+      if (total) alert(`${total} media file(s) uploaded successfully. Now select Save Product.`);
+    }
+  });
+}
+
+async function addProduct() {
+  const name = aName.value.trim();
+  const price = parsePrice(aPrice.value);
+  const category = aCategory.value.trim();
+  if (!name) return alert("Please enter a product name.");
+  if (!aPrice.value.trim() || price < 1100) return alert("Please enter a valid product price (₦0 or above).");
+  if (!category) return alert("Please select a category.");
+  if (!uploadedImages.length && !uploadedVideos.length) return alert("Upload at least one image or video first.");
+  try {
+    await fb.addDoc(fb.collection(db, "products"), {
+      name, price, category, images: [...uploadedImages], videos: [...uploadedVideos],
+      mediaType: "mixed", date: Date.now()
+    });
+    uploadedImages = [];
+    uploadedVideos = [];
+    aName.value = "";
+    aPrice.value = "";
+    document.getElementById("uploadStatus").textContent = "No media selected yet.";
+    alert("Product saved successfully ✅");
+    await loadProductsFromFirebase();
+  } catch (error) {
+    console.error(error);
+    alert("Failed to save product ❌\n" + (error.code || error.message || ""));
+  }
+}
+
+async function loadProductsFromFirebase() {
+  const snap = await fb.getDocs(fb.collection(db, "products"));
+  products = snap.docs.map(normalizeProduct).sort((a,b) => Number(b.date || 0) - Number(a.date || 0));
+  loadDelete();
+  const saved = localStorage.getItem("hureeyerhsActiveView") || "about";
+  if (saved !== "about") showView(saved, null);
+}
+
+function loadDelete() {
+  if (!delCat || !delList) return;
+  fillCats();
+  const category = delCat.value;
+  const filtered = products.filter(p => String(p.category || "").toLowerCase() === String(category || "").toLowerCase());
+  delList.innerHTML = filtered.map((product, i) => {
+    const image = product.images?.[0];
+    return `<div class="admin-item">${image ? `<img src="${escapeAttr(image)}" width="40" height="40" style="object-fit:cover;border-radius:5px" alt="">` : `<span style="width:40px;height:40px;background:#111;color:white;display:flex;align-items:center;justify-content:center;border-radius:5px">🎥</span>`}<div style="flex:1">${escapeHtml(product.name || "Unnamed item")}</div><button class="delete-btn" onclick="delProduct(${i})">Delete</button></div>`;
+  }).join("");
+}
+
+async function delProduct(i) {
+  const category = delCat.value;
+  const filtered = products.filter(p => String(p.category || "").toLowerCase() === String(category || "").toLowerCase());
+  const product = filtered[i];
+  if (!product || !confirm(`Delete "${product.name}"?`)) return;
+  try {
+    await fb.deleteDoc(fb.doc(db, "products", product.id));
+    await loadProductsFromFirebase();
+    loadDelete();
+  } catch (error) {
+    console.error(error);
+    alert("Could not delete product ❌\n" + (error.code || error.message || ""));
+  }
+}
+
+async function loadTestimonialsFromFirebase() {
+  const snap = await fb.getDocs(fb.collection(db, "testimonials"));
+  testimonials = [];
+  snap.forEach(item => {
+    const data = item.data() || {};
+    const url = getDataValue(data, ["url","imageUrl","image"]);
+    if (url) testimonials.push({ id: item.id, url: String(url) });
+  });
+  loadTestimonials();
+}
+
+function loadTestimonials() {
+  const box = document.getElementById("testimonialCarousel");
+  const dots = document.getElementById("testimonialDots");
+  if (!box || !dots) return;
+  box.innerHTML = testimonials.map(item => `<img src="${escapeAttr(item.url)}" alt="Hureeyerhs Limited customer testimonial" loading="lazy">`).join("");
+  dots.innerHTML = testimonials.map((_, i) => `<span class="dot ${i === 0 ? "active" : ""}" onclick="scrollTestimonial(${i})"></span>`).join("");
+  tIndex = 0;
+  startAuto();
+  loadTestimonialAdmin();
+}
+
+function scrollTestimonial(i) {
+  const box = document.getElementById("testimonialCarousel");
+  const dots = document.querySelectorAll("#testimonialDots .dot");
+  if (!box || !dots.length) return;
+  tIndex = Math.max(0, Math.min(i, dots.length - 1));
+  box.scrollTo({ left: box.clientWidth * tIndex, behavior: "smooth" });
+  dots.forEach(dot => dot.classList.remove("active"));
+  dots[tIndex]?.classList.add("active");
+}
+
+function startAuto() {
+  clearInterval(tAuto);
+  if (testimonials.length <= 1) return;
+  tAuto = setInterval(() => scrollTestimonial((tIndex + 1) % testimonials.length), 4000);
+}
+
+function uploadTestimonials() {
+  if (typeof cloudinary === "undefined") return alert("Cloudinary is not loaded. Please refresh the page.");
+  cloudinary.openUploadWidget({
+    cloudName: "db92r6j9z", uploadPreset: "ummuhalti",
+    sources: ["local","camera"], multiple: true, resourceType: "image"
+  }, async (error, result) => {
+    if (error) { console.error(error); alert("Upload failed ❌"); return; }
+    if (result?.event === "success") {
+      try {
+        await fb.addDoc(fb.collection(db, "testimonials"), { url: result.info.secure_url, createdAt: Date.now() });
+        await loadTestimonialsFromFirebase();
+      } catch (saveError) {
+        console.error(saveError);
+        alert("Image uploaded but could not be saved ❌\n" + (saveError.code || saveError.message || ""));
+      }
+    }
+  });
+}
+
+function loadTestimonialAdmin() {
+  const box = document.getElementById("testimonialList");
+  if (!box) return;
+  box.innerHTML = testimonials.map((item, i) => `<div class="testimonial-item"><img src="${escapeAttr(item.url)}" alt=""><div style="flex:1">Testimonial ${i + 1}</div><button class="delete-btn" onclick="deleteTestimonial(${i})">Delete</button></div>`).join("");
+}
+
+async function deleteTestimonial(i) {
+  const item = testimonials[i];
+  if (!item || !confirm("Delete this testimonial?")) return;
+  try {
+    await fb.deleteDoc(fb.doc(db, "testimonials", item.id));
+    await loadTestimonialsFromFirebase();
+    alert("Testimonial deleted ✅");
+  } catch (error) {
+    console.error(error);
+    alert("Could not delete testimonial ❌");
+  }
+}
+
+function restoreActiveView() {
+  const saved = localStorage.getItem("hureeyerhsActiveView") || "about";
+  const exists = saved === "about" || categories.includes(saved);
+  showView(exists ? saved : "about", null);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+function escapeAttr(value) { return escapeHtml(value); }
+
+window.openAdmin = openAdmin;
+window.logoutAdmin = logoutAdmin;
+window.uploadMedia = uploadMedia;
+window.addProduct = addProduct;
+window.addCategory = addCategory;
+window.deleteCategory = deleteCategory;
+window.loadDelete = loadDelete;
+window.delProduct = delProduct;
+window.uploadTestimonials = uploadTestimonials;
+window.deleteTestimonial = deleteTestimonial;
+window.showView = showView;
+window.buyNow = buyNow;
+window.toggleVideoSound = toggleVideoSound;
+window.scrollTestimonial = scrollTestimonial;
+</script>
+</body>
+</html>
