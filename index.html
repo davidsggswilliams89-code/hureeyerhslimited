@@ -54,6 +54,10 @@
     .fb{background:#111}.wa{background:#25D366}
     .carousel,.video-container{margin-top:0!important}
     .muted-note{font-size:13px;color:#555}
+    .service-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px 10px 4px;max-width:100%;box-sizing:border-box}
+    .service-shortcut{min-width:0;min-height:42px;padding:8px 4px;border:1px solid #d63384;border-radius:10px;background:#111;color:#fff;font-size:clamp(10px,2.8vw,14px);font-weight:700;line-height:1.15;cursor:pointer;overflow-wrap:anywhere}
+    .service-shortcut:active{transform:scale(.98);background:#d63384}
+    @media(max-width:360px){.service-shortcuts{gap:4px;padding-left:6px;padding-right:6px}.service-shortcut{font-size:10px;padding:7px 2px}}
   </style>
 </head>
 <body>
@@ -65,6 +69,12 @@
   <div class="category-bar" id="categoryBar"></div>
 
   <div id="aboutView" class="view active-view">
+    <div class="service-shortcuts" aria-label="Hureeyerhs services">
+      <button type="button" class="service-shortcut" onclick="openServicePage('makeup')">Make Up</button>
+      <button type="button" class="service-shortcut" onclick="openServicePage('home-decor')">Home Decor</button>
+      <button type="button" class="service-shortcut" onclick="openServicePage('perfume')">Perfume</button>
+      <button type="button" class="service-shortcut" onclick="openServicePage('travel-and-tour')">Travel &amp; Tour</button>
+    </div>
     <div class="card">
       <h3 style="text-align:center">What Our Customers Say 💬</h3>
       <div class="carousel testimonial-carousel" id="testimonialCarousel"></div>
@@ -97,6 +107,16 @@
 
   <div class="admin" id="adminPanel">
     <h3>HUREEYERHS LIMITED — Admin Panel</h3>
+    <div id="adminLoginForm" class="form-group" style="max-width:320px">
+      <label for="adminEmail">Admin email</label>
+      <input id="adminEmail" type="email" autocomplete="username" placeholder="Enter admin email">
+      <label for="adminPassword">Password</label>
+      <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Enter password">
+      <button class="btn" id="adminLoginButton" type="button" onclick="submitAdminLogin()">Log In</button>
+      <p id="adminLoginStatus" class="muted-note" role="status" aria-live="polite"></p>
+      <button class="btn" type="button" onclick="closeAdminLogin()" style="background:#555">Cancel</button>
+    </div>
+    <div id="adminTools" style="display:none;width:100%;max-width:320px;flex-direction:column;align-items:center">
     <p class="muted-note">Add products or service offers to your store.</p>
     <div class="form-group"><label for="aName">Product Name</label><input id="aName" placeholder="e.g. Hydrating Face Cream"></div>
     <div class="form-group"><label for="aPrice">Product Price (₦)</label><input id="aPrice" type="number" min="1100" step="1" inputmode="numeric" placeholder="e.g. 2000"></div>
@@ -124,6 +144,7 @@
     <button class="btn" onclick="addCategory()">Add Category</button>
     <hr>
     <button class="btn" onclick="logoutAdmin()" style="background:red">Logout</button>
+    </div>
   </div>
 
 <script type="module">
@@ -528,6 +549,17 @@ function toggleVideoSound(button) {
   }
 }
 
+function openServicePage(service) {
+  const pages = {
+    "makeup": "makeup.html",
+    "home-decor": "home-decor.html",
+    "perfume": "perfume.html",
+    "travel-and-tour": "travel-and-tour.html"
+  };
+  const page = pages[service];
+  if (page) window.location.href = page;
+}
+
 function contactWhatsApp() {
   if (!WHATSAPP_NUMBER) {
     alert("Please add Hureeyerhs Limited WhatsApp number in WHATSAPP_NUMBER in index.html.");
@@ -554,28 +586,89 @@ function buyNow(i, type) {
 }
 
 async function openAdmin() {
-  const email = prompt("Enter Hureeyerhs Limited admin email");
-  if (!email) return;
-  const password = prompt("Enter admin password");
-  if (!password) return;
+  const panel = document.getElementById("adminPanel");
+  const form = document.getElementById("adminLoginForm");
+  const tools = document.getElementById("adminTools");
+  const status = document.getElementById("adminLoginStatus");
+  if (panel) panel.style.display = "flex";
+  if (form) form.style.display = "block";
+  if (tools) tools.style.display = "none";
+  if (status) status.textContent = "Enter your Firebase Authentication email and password.";
+  document.getElementById("adminEmail")?.focus();
+}
+
+async function submitAdminLogin() {
+  const emailInput = document.getElementById("adminEmail");
+  const passwordInput = document.getElementById("adminPassword");
+  const button = document.getElementById("adminLoginButton");
+  const status = document.getElementById("adminLoginStatus");
+  const form = document.getElementById("adminLoginForm");
+  const tools = document.getElementById("adminTools");
+
+  const email = emailInput?.value.trim() || "";
+  const password = passwordInput?.value || "";
+  if (!email || !password) {
+    if (status) status.textContent = "Please enter both your email and password.";
+    return;
+  }
+
+  if (button) { button.disabled = true; button.textContent = "Signing in…"; }
+  if (status) status.textContent = "Connecting to Firebase Authentication…";
+
   try {
     await waitForFirebase();
+    if (!window.auth || !window.signInWithEmailAndPassword) {
+      throw new Error("Firebase Authentication did not initialize. Check the Firebase setup.");
+    }
     await window.signInWithEmailAndPassword(window.auth, email, password);
-    adminPanel.style.display = "flex";
+    if (status) status.textContent = "Login successful. Loading admin tools…";
+    await loadCategoriesFromFirebase();
+    await loadProductsFromFirebase();
+    await loadTestimonialsFromFirebase();
     fillCats();
     loadDelete();
     loadTestimonialAdmin();
+    if (form) form.style.display = "none";
+    if (tools) tools.style.display = "flex";
     alert("Admin login successful ✅");
   } catch (error) {
-    console.error(error);
-    alert("Admin login failed ❌\n" + (error.code || error.message || "Check Firebase Authentication setup."));
+    console.error("Admin login failed:", error);
+    const code = String(error?.code || "");
+    let message = error?.message || "Unknown error.";
+    if (code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found")) {
+      message = "Incorrect email or password. Check the Firebase Authentication user.";
+    } else if (code.includes("operation-not-allowed")) {
+      message = "Email/password sign-in is disabled. Enable it in Firebase Authentication.";
+    } else if (code.includes("unauthorized-domain")) {
+      message = "This website domain is not authorized in Firebase Authentication settings.";
+    } else if (code.includes("network-request-failed")) {
+      message = "Network error. Check your internet connection and try again.";
+    } else if (code.includes("permission-denied")) {
+      message = "Login may have succeeded, but Firestore access was denied. Check Firestore rules.";
+    }
+    if (status) status.textContent = "Login failed: " + message + (code ? " (" + code + ")" : "");
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "Log In"; }
   }
+}
+
+function closeAdminLogin() {
+  const panel = document.getElementById("adminPanel");
+  if (panel) panel.style.display = "none";
 }
 
 async function logoutAdmin() {
   try { await window.signOut(window.auth); } catch (error) { console.error(error); }
-  adminPanel.style.display = "none";
-  alert("Logged out.");
+  const panel = document.getElementById("adminPanel");
+  const form = document.getElementById("adminLoginForm");
+  const tools = document.getElementById("adminTools");
+  if (panel) panel.style.display = "none";
+  if (form) form.style.display = "block";
+  if (tools) tools.style.display = "none";
+  const status = document.getElementById("adminLoginStatus");
+  if (status) status.textContent = "";
+  const password = document.getElementById("adminPassword");
+  if (password) password.value = "";
 }
 
 function uploadMedia() {
@@ -755,7 +848,10 @@ function escapeHtml(value) {
 }
 function escapeAttr(value) { return escapeHtml(value); }
 
+window.openServicePage = openServicePage;
 window.openAdmin = openAdmin;
+window.submitAdminLogin = submitAdminLogin;
+window.closeAdminLogin = closeAdminLogin;
 window.logoutAdmin = logoutAdmin;
 window.uploadMedia = uploadMedia;
 window.addProduct = addProduct;
