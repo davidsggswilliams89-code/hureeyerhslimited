@@ -7,7 +7,7 @@
   <meta name="description" content="Hureeyerhs Limited — cosmetics, makeup, home decoration, travel and tour services.">
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
   <style>
-    body{margin:0;font-family:Arial,sans-serif;background:#fff0f6;padding-top:38px}
+    body{margin:0;font-family:Arial,sans-serif;background:#fff0f6;padding-top:68px}
     .top-marquee{background:#111;position:fixed;top:0;width:100%;height:30px;display:flex;align-items:center;overflow:hidden;z-index:3000}
     .logo{height:30px;margin:0;padding:0;object-fit:contain;background:#111;z-index:10}
     .marquee-wrapper{position:absolute;width:100%;overflow:hidden;z-index:1}
@@ -20,6 +20,9 @@
     .admin label{display:block;width:100%;font-size:13px;font-weight:bold;color:#222;margin-bottom:2px}
     .admin input,.admin select{width:100%;max-width:320px;padding:8px;font-size:13px;border:1px solid #ccc;border-radius:8px;margin:2px 0;box-sizing:border-box}
     .admin .btn{width:100%;max-width:320px;padding:9px;margin:4px 0;font-size:13px;border:none;border-radius:8px;cursor:pointer;text-align:center}
+    .category-bar{position:fixed;top:30px;width:100%;height:30px;display:flex;align-items:center;overflow-x:auto;z-index:2000;background:linear-gradient(90deg,#111111,#d63384);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .category-btn{display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:white;padding:5px 10px;margin:3px 4px;border-radius:18px;white-space:nowrap;cursor:pointer;font-size:15px;font-weight:500;transition:.2s}
+    .category-btn.active{background:#fff;color:#d63384}
     .view{display:none;padding:0 10px 10px}
     .active-view{display:block!important}
     .card{background:white;border-radius:14px;padding:7px;margin-bottom:10px}
@@ -62,7 +65,10 @@
     <img src="logo.png" class="logo" id="brandLogo" alt="Hureeyerhs Limited logo" title="Hureeyerhs Limited">
     <div class="marquee-wrapper"><div class="marquee-text">HUREEYERHS LIMITED 💗 • COSMETIC • MAKE UP • HOME-DECOR • TRAVEL AND TOUR •</div></div>
   </div>
-<div id="aboutView" class="view active-view">
+
+  <div class="category-bar" id="categoryBar"></div>
+
+  <div id="aboutView" class="view active-view">
     <div class="service-shortcuts" aria-label="Hureeyerhs services">
       <button type="button" class="service-shortcut" onclick="openServicePage('makeup')">Make Up</button>
       <button type="button" class="service-shortcut" onclick="openServicePage('home-decor')">Home Decor</button>
@@ -182,7 +188,11 @@ let tAuto = null;
 let adminPanel, delCat, delList, aName, aPrice, aCategory, aboutView;
 
 const WHATSAPP_NUMBER = ""; // Add Hureeyerhs Limited WhatsApp number without + or spaces.
-const DEFAULT_CATEGORIES = []; // No pre-filled/default categories.
+// Legacy hardcoded categories are listed only so old auto-created records can be removed.
+// New categories must be created manually in the admin panel.
+const LEGACY_HARDCODED_CATEGORIES = [
+  "Hureeyerhs Cosmetic", "Hureeyerhs Make Up", "Hureeyerhs Home-Decor", "Hureeyerhs Travel and Tour"
+];
 
 document.addEventListener("DOMContentLoaded", () => {
   const logo = document.getElementById("brandLogo");
@@ -239,10 +249,10 @@ async function initApp() {
     await loadCategoriesFromFirebase();
   } catch (error) {
     console.error("Could not load categories from Firestore:", error);
-    categories = [...DEFAULT_CATEGORIES];
+    categories = [];
     loadCategories();
     fillCats();
-    showFirebaseError(error, "Categories are temporary until Firestore access is fixed.");
+    showFirebaseError(error, "Categories could not load. Check Firestore access.");
   }
   try {
     await loadProductsFromFirebase();
@@ -347,23 +357,46 @@ function normalizeProduct(docItem) {
 async function loadCategoriesFromFirebase() {
   const snap = await fb.getDocs(fb.collection(db, "categories"));
   categories = [];
-  snap.forEach(item => {
-    const raw = getDataValue(item.data() || {}, ["name","category","title"]);
-    if (raw) {
-      const name = String(raw).trim();
-      if (name && name.toLowerCase() !== "workshop" &&
-          !categories.some(c => c.toLowerCase() === name.toLowerCase())) {
-        categories.push(name);
-      }
+  const legacyNames = new Set(LEGACY_HARDCODED_CATEGORIES.map(name => name.toLowerCase()));
+
+  // Remove only the old categories that were automatically inserted by the previous code.
+  // Admin-created categories such as "Cosmetic" are preserved.
+  for (const item of snap.docs) {
+    const data = item.data() || {};
+    const raw = getDataValue(data, ["name", "category", "title"]);
+    const name = String(raw || "").trim();
+    if (!name) continue;
+    if (legacyNames.has(name.toLowerCase())) {
+      await fb.deleteDoc(fb.doc(db, "categories", item.id));
+      continue;
     }
-  });
-  categories = [...new Set(categories)].sort((a,b) => a.localeCompare(b));
+    if (name.toLowerCase() !== "workshop" && !categories.some(c => c.toLowerCase() === name.toLowerCase())) {
+      categories.push(name);
+    }
+  }
+
+  // Never seed defaults. Only categories actually created by the admin are displayed.
+  categories = [...new Set(categories)].sort((a, b) => a.localeCompare(b));
   loadCategories();
   fillCats();
 }
 
 function loadCategories() {
-  // No category header or category buttons are displayed on the homepage.
+  const bar = document.getElementById("categoryBar");
+  if (!bar) return;
+  bar.innerHTML = "";
+  const entries = [{ label: "HOME", value: "about" }, ...categories.map(name => ({ label: name.toUpperCase(), value: name }))];
+  entries.forEach((entry, index) => {
+    const button = document.createElement("div");
+    button.className = "category-btn";
+    button.textContent = entry.label;
+    button.dataset.category = entry.value;
+    button.addEventListener("click", () => showView(entry.value, button));
+    bar.appendChild(button);
+  });
+  const saved = localStorage.getItem("hureeyerhsActiveView") || "about";
+  const active = [...bar.querySelectorAll(".category-btn")].find(b => b.dataset.category === saved);
+  (active || bar.querySelector(".category-btn"))?.classList.add("active");
 }
 
 function fillCats() {
@@ -403,7 +436,7 @@ async function deleteCategory() {
     const snap = await fb.getDocs(fb.collection(db, "categories"));
     for (const item of snap.docs) {
       const raw = getDataValue(item.data() || {}, ["name","category","title"]);
-      if (String(raw || "").trim().toLowerCase() === cat) await fb.deleteDoc(fb.doc(db, "categories", item.id));
+      if (String(raw || "").trim().toLowerCase() === String(cat).trim().toLowerCase()) await fb.deleteDoc(fb.doc(db, "categories", item.id));
     }
     categories = categories.filter(c => c !== cat);
     loadCategories();
