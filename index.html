@@ -7,7 +7,7 @@
   <meta name="description" content="Hureeyerhs Limited — cosmetics, makeup, home decoration, travel and tour services.">
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
   <style>
-    body{margin:0;font-family:Arial,sans-serif;background:#fff0f6;padding-top:68px}
+    body{margin:0;font-family:Arial,sans-serif;background:#fff7ed;padding-top:68px}
     .top-marquee{background:#111;position:fixed;top:0;width:100%;height:30px;display:flex;align-items:center;overflow:hidden;z-index:3000}
     .logo{height:30px;margin:0;padding:0;object-fit:contain;background:#111;z-index:10}
     .marquee-wrapper{position:absolute;width:100%;overflow:hidden;z-index:1}
@@ -20,9 +20,9 @@
     .admin label{display:block;width:100%;font-size:13px;font-weight:bold;color:#222;margin-bottom:2px}
     .admin input,.admin select{width:100%;max-width:320px;padding:8px;font-size:13px;border:1px solid #ccc;border-radius:8px;margin:2px 0;box-sizing:border-box}
     .admin .btn{width:100%;max-width:320px;padding:9px;margin:4px 0;font-size:13px;border:none;border-radius:8px;cursor:pointer;text-align:center}
-    .category-bar{position:fixed;top:30px;width:100%;height:30px;display:flex;align-items:center;overflow-x:auto;z-index:2000;background:linear-gradient(90deg,#111111,#d63384);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .category-bar{position:fixed;top:30px;width:100%;height:30px;display:flex;align-items:center;overflow-x:auto;z-index:2000;background:linear-gradient(90deg,#111111,#f28c00);box-shadow:0 2px 8px rgba(0,0,0,.2)}
     .category-btn{display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:white;padding:5px 10px;margin:3px 4px;border-radius:18px;white-space:nowrap;cursor:pointer;font-size:15px;font-weight:500;transition:.2s}
-    .category-btn.active{background:#fff;color:#d63384}
+    .category-btn.active{background:#fff;color:#f28c00}
     .view{display:none;padding:0 10px 10px}
     .active-view{display:block!important}
     .card{background:white;border-radius:14px;padding:7px;margin-bottom:10px}
@@ -40,8 +40,8 @@
     .social-btn img{width:18px;height:18px;object-fit:contain}
     .dots{text-align:center;margin-top:5px}
     .dot{height:8px;width:8px;margin:0 3px;background:#bbb;border-radius:50%;display:inline-block}
-    .dot.active{background:#d63384}
-    .buy-btn,.price-btn{box-sizing:border-box;width:100%;min-height:40px;padding:9px;margin-top:6px;border-radius:10px;font-weight:bold;font-size:16px;display:flex;align-items:center;justify-content:center;text-align:center;gap:10px;cursor:pointer}.buy-btn{background:#d63384;color:white;border:none}.price-btn{background:#111;color:#fff;border:1px solid #111;cursor:default}
+    .dot.active{background:#f28c00}
+    .buy-btn,.price-btn{box-sizing:border-box;width:100%;min-height:40px;padding:9px;margin-top:6px;border-radius:10px;font-weight:bold;font-size:16px;display:flex;align-items:center;justify-content:center;text-align:center;gap:10px;cursor:pointer}.buy-btn{background:#f28c00;color:#111;border:none}.price-btn{background:#111;color:#fff;border:1px solid #111;cursor:default}
     input,select{width:100%;max-width:320px;padding:10px;margin:5px 0;box-sizing:border-box}
     .btn{width:100%;padding:10px;background:green;color:white;border:none;margin-top:5px;cursor:pointer}
     .admin-item,.testimonial-item{display:flex;align-items:center;gap:10px;background:#f2f2f2;padding:8px;margin:5px 0;border-radius:6px}
@@ -54,17 +54,27 @@
     .fb{background:#111}.wa{background:#25D366}
     .carousel,.video-container{margin-top:0!important}
     .muted-note{font-size:13px;color:#555}
+    .service-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px 10px 4px;max-width:100%;box-sizing:border-box}
+    .service-shortcut{min-width:0;min-height:42px;padding:8px 4px;border:1px solid #f28c00;border-radius:10px;background:#111;color:#fff;font-size:clamp(10px,2.8vw,14px);font-weight:700;line-height:1.15;cursor:pointer;overflow-wrap:anywhere}
+    .service-shortcut:active{transform:scale(.98);background:#f28c00}
+    @media(max-width:360px){.service-shortcuts{gap:4px;padding-left:6px;padding-right:6px}.service-shortcut{font-size:10px;padding:7px 2px}}
   </style>
 </head>
 <body>
   <div class="top-marquee">
-    <img src="logo2.jpg" class="logo" id="brandLogo" alt="Hureeyerhs Limited logo" title="Hureeyerhs Limited">
+    <img src="logo.png" class="logo" id="brandLogo" alt="Hureeyerhs Limited logo" title="Hureeyerhs Limited">
     <div class="marquee-wrapper"><div class="marquee-text">HUREEYERHS LIMITED 💗 • COSMETIC • MAKE UP • HOME-DECOR • TRAVEL AND TOUR •</div></div>
   </div>
 
   <div class="category-bar" id="categoryBar"></div>
 
   <div id="aboutView" class="view active-view">
+    <div class="service-shortcuts" aria-label="Hureeyerhs services">
+      <button type="button" class="service-shortcut" onclick="openServicePage('makeup')">Make Up</button>
+      <button type="button" class="service-shortcut" onclick="openServicePage('home-decor')">Home Decor</button>
+      <button type="button" class="service-shortcut" onclick="openServicePage('perfume')">Perfume</button>
+      <button type="button" class="service-shortcut" onclick="openServicePage('travel-and-tour')">Travel &amp; Tour</button>
+    </div>
     <div class="card">
       <h3 style="text-align:center">What Our Customers Say 💬</h3>
       <div class="carousel testimonial-carousel" id="testimonialCarousel"></div>
@@ -84,13 +94,13 @@
       <hr>
       <h3>Contact & Business Info</h3>
       <p>💬 WhatsApp orders and enquiries<br>💄 Cosmetics and makeup<br>🏠 Home decoration<br>✈️ Travel and tour enquiries</p>
-      <p>📞 Call us: <a href="tel:">Add your business phone number</a></p>
+      <p>📞 Call / WhatsApp us: <a href="tel:+2348064211714">+234 806 421 1714</a></p>
       <hr>
       <h3>Connect With Hureeyerhs</h3>
       <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding-bottom:5px">
         <a href="https://www.facebook.com/" target="_blank" rel="noopener" style="text-decoration:none"><div class="social-btn fb"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="">Facebook</div></a>
-        <a href="https://wa.me/" target="_blank" rel="noopener" style="text-decoration:none"><div class="social-btn wa"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="">WhatsApp</div></a>
-        <a href="tel:" style="text-decoration:none"><div class="social-btn"><span aria-hidden="true">📞</span> Call Us</div></a>
+        <a href="https://wa.me/2348064211714?text=Hello%20Hureeyerhs%20Limited%2C%20I%20would%20like%20to%20make%20an%20enquiry." target="_blank" rel="noopener" style="text-decoration:none"><div class="social-btn wa"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="">WhatsApp</div></a>
+        <a href="tel:+2348064211714" style="text-decoration:none"><div class="social-btn"><span aria-hidden="true">📞</span> Call Us</div></a>
       </div>
     </div>
   </div>
@@ -177,10 +187,8 @@ let tIndex = 0;
 let tAuto = null;
 let adminPanel, delCat, delList, aName, aPrice, aCategory, aboutView;
 
-const WHATSAPP_NUMBER = ""; // Add Hureeyerhs Limited WhatsApp number without + or spaces.
-// Legacy hardcoded categories are listed only so old auto-created records can be removed.
-// New categories must be created manually in the admin panel.
-const LEGACY_HARDCODED_CATEGORIES = [
+const WHATSAPP_NUMBER = "2348064211714"; // Hureeyerhs Limited WhatsApp number in international format without + or spaces.
+const DEFAULT_CATEGORIES = [
   "Hureeyerhs Cosmetic", "Hureeyerhs Make Up", "Hureeyerhs Home-Decor", "Hureeyerhs Travel and Tour"
 ];
 
@@ -239,10 +247,10 @@ async function initApp() {
     await loadCategoriesFromFirebase();
   } catch (error) {
     console.error("Could not load categories from Firestore:", error);
-    categories = [];
+    categories = [...DEFAULT_CATEGORIES];
     loadCategories();
     fillCats();
-    showFirebaseError(error, "Categories could not load. Check Firestore access.");
+    showFirebaseError(error, "Categories are temporary until Firestore access is fixed.");
   }
   try {
     await loadProductsFromFirebase();
@@ -347,26 +355,21 @@ function normalizeProduct(docItem) {
 async function loadCategoriesFromFirebase() {
   const snap = await fb.getDocs(fb.collection(db, "categories"));
   categories = [];
-  const legacyNames = new Set(LEGACY_HARDCODED_CATEGORIES.map(name => name.toLowerCase()));
-
-  // Remove only the old categories that were automatically inserted by the previous code.
-  // Admin-created categories such as "Cosmetic" are preserved.
-  for (const item of snap.docs) {
-    const data = item.data() || {};
-    const raw = getDataValue(data, ["name", "category", "title"]);
-    const name = String(raw || "").trim();
-    if (!name) continue;
-    if (legacyNames.has(name.toLowerCase())) {
-      await fb.deleteDoc(fb.doc(db, "categories", item.id));
-      continue;
+  snap.forEach(item => {
+    const raw = getDataValue(item.data() || {}, ["name","category","title"]);
+    if (raw) {
+      const name = String(raw).trim();
+      if (name && name.toLowerCase() !== "workshop" && !categories.some(c => c.toLowerCase() === name.toLowerCase())) categories.push(name);
     }
-    if (name.toLowerCase() !== "workshop" && !categories.some(c => c.toLowerCase() === name.toLowerCase())) {
-      categories.push(name);
+  });
+  /* Seed textile categories only when the new project's category collection is empty. */
+  if (!categories.length) {
+    for (const name of DEFAULT_CATEGORIES) {
+      await fb.addDoc(fb.collection(db, "categories"), { name, createdAt: Date.now() });
     }
+    categories = [...DEFAULT_CATEGORIES];
   }
-
-  // Never seed defaults. Only categories actually created by the admin are displayed.
-  categories = [...new Set(categories)].sort((a, b) => a.localeCompare(b));
+  categories = [...new Set(categories)].sort((a,b) => a.localeCompare(b));
   loadCategories();
   fillCats();
 }
@@ -426,7 +429,7 @@ async function deleteCategory() {
     const snap = await fb.getDocs(fb.collection(db, "categories"));
     for (const item of snap.docs) {
       const raw = getDataValue(item.data() || {}, ["name","category","title"]);
-      if (String(raw || "").trim().toLowerCase() === String(cat).trim().toLowerCase()) await fb.deleteDoc(fb.doc(db, "categories", item.id));
+      if (String(raw || "").trim().toLowerCase() === cat) await fb.deleteDoc(fb.doc(db, "categories", item.id));
     }
     categories = categories.filter(c => c !== cat);
     loadCategories();
@@ -465,7 +468,7 @@ function showView(type, el) {
     const media = buildMedia(p);
     const carouselId = `car-${safe}-${i}`;
     const dotsId = `dots-${safe}-${i}`;
-    return `<div class="card"><div class="img-wrap">${isNewProduct(p) ? '<div class="new-badge">NEW</div>' : ''}<div class="carousel" id="${carouselId}">${media}</div></div><div class="dots" id="${dotsId}"></div><div class="price-btn" aria-label="Product price">${formatNaira(p.price)}</div><button class="buy-btn" onclick="buyNow(${i}, '${escapeAttr(type)}')">ENQUIRE / BUY NOW</button></div>`;
+    return `<div class="card"><div class="img-wrap">${isNewProduct(p) ? '<div class="new-badge">NEW</div>' : ''}<div class="carousel" id="${carouselId}">${media}</div></div><div class="dots" id="${dotsId}"></div><div class="price-btn" aria-label="Product price">${formatNaira(p.price)}</div><button class="buy-btn" onclick="buyNow(${i}, '${escapeAttr(type)}')">🟢 WHATSAPP TO ENQUIRE / BUY NOW</button></div>`;
   }).join("") : `<div class="card"><h3 style="text-align:center">${escapeHtml(type.toUpperCase())}</h3><p style="text-align:center">No products uploaded yet. Please check back soon.</p></div>`;
   view.classList.add("active-view");
   list.forEach((p, i) => {
@@ -558,11 +561,8 @@ function openServicePage(service) {
 }
 
 function contactWhatsApp() {
-  if (!WHATSAPP_NUMBER) {
-    alert("Please add Hureeyerhs Limited WhatsApp number in WHATSAPP_NUMBER in index.html.");
-    return;
-  }
-  window.open("https://wa.me/" + WHATSAPP_NUMBER, "_blank", "noopener");
+  const message = "Hello, Hureeyerhs Limited. I would like to make an enquiry about your products and services.";
+  window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message), "_blank", "noopener");
 }
 
 function buyNow(i, type) {
@@ -574,11 +574,10 @@ function buyNow(i, type) {
   const index = carousel?.clientWidth ? Math.round(carousel.scrollLeft / carousel.clientWidth) : 0;
   const mediaList = [...(product.images || []), ...(product.videos || [])];
   const selectedMedia = mediaList[index] || mediaList[0] || "No media attached";
-  const message = `Hello, Hureeyerhs Limited. I am interested in this item:\n\nProduct: ${product.name || "N/A"}\nCategory: ${String(type).toUpperCase()}\nProduct media: ${selectedMedia}\n\nPlease confirm availability and price.`;
-  if (!WHATSAPP_NUMBER) {
-    alert("Please set Hureeyerhs Limited WhatsApp number in WHATSAPP_NUMBER before enabling orders.");
-    return;
-  }
+  const allMedia = mediaList.length ? mediaList.join("\n") : "No media attached";
+  const productPage = window.location.href;
+  const price = formatNaira(product.price);
+  const message = `Hello, Hureeyerhs Limited! I would like to enquire about / order this product.\n\nProduct name: ${product.name || "N/A"}\nPrice: ${price}\nCategory: ${String(type).toUpperCase()}\nSelected image/video: ${selectedMedia}\nAll product media links:\n${allMedia}\nStore/product page: ${productPage}\n\nPlease confirm availability, delivery cost, and payment details. Thank you.`;
   window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message), "_blank", "noopener");
 }
 
