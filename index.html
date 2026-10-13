@@ -120,6 +120,7 @@
     <p class="muted-note">Add products or service offers to your store.</p>
     <div class="form-group"><label for="aName">Product Name</label><input id="aName" placeholder="e.g. Hydrating Face Cream"></div>
     <div class="form-group"><label for="aPrice">Product Price (₦)</label><input id="aPrice" type="number" min="1100" step="1" inputmode="numeric" placeholder="e.g. 2000"></div>
+    <div class="form-group"><label for="aDescription">Product Description</label><textarea id="aDescription" rows="3" placeholder="Describe the product" style="width:100%;max-width:320px;padding:8px;font-size:13px;border:1px solid #ccc;border-radius:8px;margin:2px 0;box-sizing:border-box;resize:vertical"></textarea></div>
     <div class="form-group"><label for="aCategory">Category</label><select id="aCategory"></select></div>
     <button class="btn" onclick="uploadMedia()">📷🎥 Upload Images / Videos</button>
     <p id="uploadStatus" class="muted-note">No media selected yet.</p>
@@ -185,7 +186,7 @@ let uploadedVideos = [];
 let testimonials = [];
 let tIndex = 0;
 let tAuto = null;
-let adminPanel, delCat, delList, aName, aPrice, aCategory, aboutView;
+let adminPanel, delCat, delList, aName, aPrice, aDescription, aCategory, aboutView;
 
 const WHATSAPP_NUMBER = "2348064211714"; // Hureeyerhs Limited WhatsApp number in international format without + or spaces.
 const DEFAULT_CATEGORIES = [
@@ -233,6 +234,7 @@ async function initApp() {
   delList = document.getElementById("delList");
   aName = document.getElementById("aName");
   aPrice = document.getElementById("aPrice");
+  aDescription = document.getElementById("aDescription");
   aCategory = document.getElementById("aCategory");
   aboutView = document.getElementById("aboutView");
 
@@ -346,6 +348,7 @@ function normalizeProduct(docItem) {
     id: docItem.id, ...data,
     name: String(getDataValue(data, ["name","productName","title"]) || "Hureeyerhs Product"),
     price: parsePrice(getDataValue(data, ["price","productPrice","amount"])),
+    description: String(getDataValue(data, ["description","productDescription","details"]) || "").trim(),
     category: String(getDataValue(data, ["category","cat","categoryName"]) || "").trim(),
     images, videos,
     date: Number(getDataValue(data, ["date","createdAt","timestamp"]) || 0)
@@ -468,7 +471,7 @@ function showView(type, el) {
     const media = buildMedia(p);
     const carouselId = `car-${safe}-${i}`;
     const dotsId = `dots-${safe}-${i}`;
-    return `<div class="card"><div class="img-wrap">${isNewProduct(p) ? '<div class="new-badge">NEW</div>' : ''}<div class="carousel" id="${carouselId}">${media}</div></div><div class="dots" id="${dotsId}"></div><div class="price-btn" aria-label="Product price">${formatNaira(p.price)}</div><button class="buy-btn" onclick="buyNow(${i}, '${escapeAttr(type)}')">🟢 WHATSAPP TO ENQUIRE / BUY NOW</button></div>`;
+    return `<div class="card"><div class="img-wrap">${isNewProduct(p) ? '<div class="new-badge">NEW</div>' : ''}<div class="carousel" id="${carouselId}">${media}</div></div><div class="dots" id="${dotsId}"></div>${p.description ? `<p class="product-description" style="margin:8px 2px;color:#333;font-size:14px;line-height:1.45;white-space:pre-wrap">${escapeHtml(p.description)}</p>` : ''}<div class="price-btn" aria-label="Product price">${formatNaira(p.price)}</div><button class="buy-btn" onclick="buyNow(${i}, '${escapeAttr(type)}')">🟢 WHATSAPP TO ENQUIRE / BUY NOW</button></div>`;
   }).join("") : `<div class="card"><h3 style="text-align:center">${escapeHtml(type.toUpperCase())}</h3><p style="text-align:center">No products uploaded yet. Please check back soon.</p></div>`;
   view.classList.add("active-view");
   list.forEach((p, i) => {
@@ -574,10 +577,8 @@ function buyNow(i, type) {
   const index = carousel?.clientWidth ? Math.round(carousel.scrollLeft / carousel.clientWidth) : 0;
   const mediaList = [...(product.images || []), ...(product.videos || [])];
   const selectedMedia = mediaList[index] || mediaList[0] || "No media attached";
-  const allMedia = mediaList.length ? mediaList.join("\n") : "No media attached";
-  const productPage = window.location.href;
   const price = formatNaira(product.price);
-  const message = `Hello, Hureeyerhs Limited! I would like to enquire about / order this product.\n\nProduct name: ${product.name || "N/A"}\nPrice: ${price}\nCategory: ${String(type).toUpperCase()}\nSelected image/video: ${selectedMedia}\nAll product media links:\n${allMedia}\nStore/product page: ${productPage}\n\nPlease confirm availability, delivery cost, and payment details. Thank you.`;
+  const message = `Hello, Hureeyerhs Limited! I would like to enquire about / order this product.\n\nProduct name: ${product.name || "N/A"}\nPrice: ${price}\nSelected image/video: ${selectedMedia}\n\nPlease confirm availability, delivery cost, and payment details. Thank you.`;
   window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message), "_blank", "noopener");
 }
 
@@ -700,6 +701,7 @@ function uploadMedia() {
 async function addProduct() {
   const name = aName.value.trim();
   const price = parsePrice(aPrice.value);
+  const description = aDescription?.value.trim() || "";
   const category = aCategory.value.trim();
   if (!name) return alert("Please enter a product name.");
   if (!aPrice.value.trim() || price < 1100) return alert("Please enter a valid product price (₦0 or above).");
@@ -707,13 +709,14 @@ async function addProduct() {
   if (!uploadedImages.length && !uploadedVideos.length) return alert("Upload at least one image or video first.");
   try {
     await fb.addDoc(fb.collection(db, "products"), {
-      name, price, category, images: [...uploadedImages], videos: [...uploadedVideos],
+      name, price, description, category, images: [...uploadedImages], videos: [...uploadedVideos],
       mediaType: "mixed", date: Date.now()
     });
     uploadedImages = [];
     uploadedVideos = [];
     aName.value = "";
     aPrice.value = "";
+    if (aDescription) aDescription.value = "";
     document.getElementById("uploadStatus").textContent = "No media selected yet.";
     alert("Product saved successfully ✅");
     await loadProductsFromFirebase();
