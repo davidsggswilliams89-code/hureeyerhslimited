@@ -58,7 +58,7 @@
 </head>
 <body>
   <div class="top-marquee">
-    <img src="logo2.jpg" class="logo" id="brandLogo" alt="Hureeyerhs Limited logo" title="Hureeyerhs Limited">
+    <img src="logo.png" class="logo" id="brandLogo" alt="Hureeyerhs Limited logo" title="Hureeyerhs Limited">
     <div class="marquee-wrapper"><div class="marquee-text">HUREEYERHS LIMITED 💗 • COSMETIC • MAKE UP • HOME-DECOR • TRAVEL AND TOUR •</div></div>
   </div>
 
@@ -461,7 +461,7 @@ function showView(type, el) {
     const media = buildMedia(p);
     const carouselId = `car-${safe}-${i}`;
     const dotsId = `dots-${safe}-${i}`;
-    return `<div class="card"><div class="img-wrap">${isNewProduct(p) ? '<div class="new-badge">NEW</div>' : ''}<div class="carousel" id="${carouselId}">${media}</div></div><div class="dots" id="${dotsId}"></div>${p.description ? `<p class="product-description" style="margin:8px 2px;color:#333;font-size:14px;line-height:1.45;white-space:pre-wrap">${escapeHtml(p.description)}</p>` : ''}<div class="price-btn" aria-label="Product price">${formatNaira(p.price)}</div><button class="buy-btn" onclick="buyNow(${i}, '${escapeAttr(type)}')">🟢 WHATSAPP TO ENQUIRE / BUY NOW</button></div>`;
+    return `<div class="card"><div class="img-wrap">${isNewProduct(p) ? '<div class="new-badge">NEW</div>' : ''}<div class="carousel" id="${carouselId}">${media}</div></div><div class="dots" id="${dotsId}"></div>${p.description ? `<p class="product-description" style="margin:8px 2px;color:#333;font-size:14px;line-height:1.45;white-space:pre-wrap">${escapeHtml(p.description)}</p>` : ''}<div class="price-btn" aria-label="Product price">${formatNaira(p.price)}</div><button class="buy-btn" onclick="buyNow(${i}, '${escapeAttr(type)}')">BUY NOW</button></div>`;
   }).join("") : `<div class="card"><h3 style="text-align:center">${escapeHtml(type.toUpperCase())}</h3><p style="text-align:center">No products uploaded yet. Please check back soon.</p></div>`;
   view.classList.add("active-view");
   list.forEach((p, i) => {
@@ -567,8 +567,7 @@ function buyNow(i, type) {
   const index = carousel?.clientWidth ? Math.round(carousel.scrollLeft / carousel.clientWidth) : 0;
   const mediaList = [...(product.images || []), ...(product.videos || [])];
   const selectedMedia = mediaList[index] || mediaList[0] || "No media attached";
-  const price = formatNaira(product.price);
-  const message = `Hello, Hureeyerhs Limited! I would like to enquire about / order this product.\n\nProduct name: ${product.name || "N/A"}\nPrice: ${price}\nSelected image/video: ${selectedMedia}\n\nPlease confirm availability, delivery cost, and payment details. Thank you.`;
+  const message = `I am interested in this item:\n\nProduct: ${product.name || "N/A"}\nCategory: ${String(product.category || type || "").toUpperCase()}\nProduct media:👇 ${selectedMedia}\n\nPlease confirm the availability.`;
   window.open("https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message), "_blank", "noopener");
 }
 
