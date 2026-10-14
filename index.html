@@ -54,10 +54,6 @@
     .fb{background:#111}.wa{background:#25D366}
     .carousel,.video-container{margin-top:0!important}
     .muted-note{font-size:13px;color:#555}
-    .service-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px 10px 4px;max-width:100%;box-sizing:border-box}
-    .service-shortcut{min-width:0;min-height:42px;padding:8px 4px;border:1px solid #f28c00;border-radius:10px;background:#111;color:#fff;font-size:clamp(10px,2.8vw,14px);font-weight:700;line-height:1.15;cursor:pointer;overflow-wrap:anywhere}
-    .service-shortcut:active{transform:scale(.98);background:#f28c00}
-    @media(max-width:360px){.service-shortcuts{gap:4px;padding-left:6px;padding-right:6px}.service-shortcut{font-size:10px;padding:7px 2px}}
   </style>
 </head>
 <body>
@@ -69,12 +65,6 @@
   <div class="category-bar" id="categoryBar"></div>
 
   <div id="aboutView" class="view active-view">
-    <div class="service-shortcuts" aria-label="Hureeyerhs services">
-      <button type="button" class="service-shortcut" onclick="openServicePage('makeup')">Make Up</button>
-      <button type="button" class="service-shortcut" onclick="openServicePage('home-decor')">Home Decor</button>
-      <button type="button" class="service-shortcut" onclick="openServicePage('perfume')">Perfume</button>
-      <button type="button" class="service-shortcut" onclick="openServicePage('travel-and-tour')">Travel &amp; Tour</button>
-    </div>
     <div class="card">
       <h3 style="text-align:center">What Our Customers Say 💬</h3>
       <div class="carousel testimonial-carousel" id="testimonialCarousel"></div>
