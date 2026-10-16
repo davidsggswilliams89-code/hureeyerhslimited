@@ -423,36 +423,16 @@
   const observer = new MutationObserver(updateWelcomeSpacing);
   observer.observe(banner, {childList:true,subtree:true,characterData:true});
 
-  // Service destinations can be connected to their dedicated pages as they are created.
-  const serviceDestinations = {
-    scents: "perfume.html",
-    beauty: "makeup.html",
-    craft: "home-decor.html",
-    travel: "travel-and-tour.html",
-    proof: "#customerTestimonials"
-  };
+  // The fixed welcome/service container controls service pages. Scents opens its
+  // dedicated write-up in this same page; product-header category buttons remain
+  // reserved for displaying products managed through Admin.
   document.querySelectorAll(".welcome-service-btn").forEach(button => {
     button.addEventListener("click", () => {
-      const destination = serviceDestinations[button.dataset.service];
       if (button.dataset.service === "scents") {
         showScentsPage();
       } else if (button.dataset.service === "proof") {
         returnToHome();
         setTimeout(() => document.getElementById("customerTestimonials")?.scrollIntoView({behavior:"smooth",block:"start"}), 80);
-      } else {
-        // Other service pages can be added to this same in-page navigation later.
-        const labels = {beauty:"HUREEYERHS BEAUTY", craft:"CRAFT BY HUREEYERHS", travel:"HUREEYERHS TRAVELS AND LOGISTICS"};
-        const about = document.getElementById("aboutView");
-        if (about) {
-          document.querySelectorAll(".view").forEach(v => v.classList.remove("active-view"));
-          about.classList.add("active-view");
-          const banner = document.querySelector(".welcome-fixed-card");
-          if (banner) banner.style.display = "";
-          let notice = document.getElementById("serviceComingSoon");
-          if (!notice) { notice = document.createElement("div"); notice.id = "serviceComingSoon"; notice.className = "card"; about.prepend(notice); }
-          notice.innerHTML = `<h2 style="text-align:center">${labels[button.dataset.service] || "HUREEYERHS LIMITED"}</h2><p style="text-align:center">This service page will be displayed here when its content is added.</p><button type="button" class="btn" onclick="returnToHome()">← Return to Home</button>`;
-          notice.scrollIntoView({behavior:"smooth",block:"start"});
-        }
       }
     });
   });
@@ -702,10 +682,11 @@ function loadCategories() {
       const label = String(entry.label || "").trim().toLowerCase();
       const value = String(entry.value || "").trim().toLowerCase();
       if (label === "home" || value === "about") {
+        // HOME always returns to the main Hureeyerhs Limited homepage/about content.
         returnToHome(button);
-      } else if (label.includes("scents") || value.includes("scents by hureeyerh") || value === "scents" || value === "perfume") {
-        showScentsPage(button);
       } else {
+        // Product-header category buttons are product filters only. Their categories
+        // are created/managed in Admin and must never open the Scents company write-up.
         showView(entry.value, button);
       }
     });
