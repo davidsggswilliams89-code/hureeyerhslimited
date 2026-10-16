@@ -612,15 +612,17 @@
   const observer = new MutationObserver(updateWelcomeSpacing);
   observer.observe(banner, {childList:true,subtree:true,characterData:true});
 
-  // Connect every approved static service button to its dedicated in-page section.
+  // Static welcome-container service buttons open only their own write-up.
+  // Product-header category buttons remain product filters only.
   document.querySelectorAll(".welcome-service-btn").forEach(button => {
     button.addEventListener("click", () => {
-      const service = button.dataset.service;
-      if (service === "scents") showScentsPage();
-      else if (service === "beauty") showCosmeticsPage();
-      else if (service === "craft") showCraftPage();
-      else if (service === "travel") showTravelPage();
-      else if (service === "proof") showProofPage();
+      switch (button.dataset.service) {
+        case "scents": showScentsPage(); break;
+        case "beauty": showCosmeticsPage(); break;
+        case "craft": showCraftPage(); break;
+        case "travel": showTravelPage(); break;
+        case "proof": showProofPage(); break;
+      }
     });
   });
 })();
