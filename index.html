@@ -24,6 +24,35 @@
     .category-bar{position:fixed;top:30px;left:0;right:0;width:100%;height:38px;min-height:38px;box-sizing:border-box;display:flex;align-items:center;gap:4px;padding:0 6px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;z-index:4000;background:linear-gradient(90deg,#111111,#f28c00);box-shadow:0 2px 8px rgba(0,0,0,.2);-webkit-overflow-scrolling:touch}
     .category-btn{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto;min-height:28px;box-sizing:border-box;color:#fff!important;background:transparent;padding:5px 12px;margin:0;border:1px solid rgba(255,255,255,.35);border-radius:16px;white-space:nowrap;cursor:pointer;font-family:Arial,sans-serif;font-size:14px!important;font-weight:700!important;line-height:1.2!important;text-indent:0;visibility:visible!important;opacity:1!important;transition:background .2s,color .2s}
     .category-btn.active{background:#fff!important;color:#b86200!important;border-color:#fff}
+    /* Static welcome banner stays beneath the category bar while page content scrolls behind it. */
+    .welcome-fixed-card{
+      position:fixed;top:76px;left:10px;right:10px;z-index:2500;
+      box-sizing:border-box;background:#fff;border-radius:20px;
+      padding:14px 16px 16px;text-align:center;
+      box-shadow:0 3px 14px rgba(0,0,0,.08);
+      border:1px solid rgba(0,0,0,.04);
+    }
+    .welcome-fixed-card h1{margin:0 0 7px;font-size:clamp(20px,5.2vw,30px);line-height:1.18;font-weight:800;color:#080808}
+    .welcome-fixed-card h2{margin:0 0 7px;font-size:clamp(14px,3.8vw,21px);line-height:1.25;color:#111}
+    .welcome-fixed-card p{margin:0;font-size:clamp(12px,3.3vw,16px);line-height:1.35;color:#222}
+    .welcome-fixed-card .welcome-intro{margin:0 0 10px;font-size:clamp(12px,3.2vw,15px);font-weight:600;color:#5b4531}
+    .welcome-service-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:100%;margin:0 auto}
+    .welcome-service-btn{min-width:0;min-height:38px;padding:8px 7px;border:1px solid rgba(255,255,255,.45);border-radius:12px;background:linear-gradient(135deg,#17120e,#4a2a0b);color:#fff;font-family:Arial,sans-serif;font-size:clamp(10px,2.7vw,13px);font-weight:800;line-height:1.2;text-align:center;overflow-wrap:anywhere;box-shadow:0 2px 5px rgba(0,0,0,.12);cursor:pointer}
+    .welcome-service-btn:active{transform:scale(.98)}
+    .welcome-service-btn.beauty-btn{background:linear-gradient(135deg,#b83268,#ed78a4)}
+    .welcome-service-btn.craft-btn{background:linear-gradient(135deg,#5d3b20,#b87835)}
+    .welcome-service-btn.travel-btn{background:linear-gradient(135deg,#174b67,#2787a5)}
+    .welcome-service-btn.proof-btn{background:linear-gradient(135deg,#1d603e,#3a9c68)}
+    .welcome-service-btn:last-child{grid-column:1/-1}
+    body{padding-top:0}
+    @media(max-width:360px){.welcome-fixed-card{left:8px;right:8px;padding:10px}.welcome-service-buttons{gap:5px}.welcome-service-btn{padding:7px 5px;font-size:10px}}
+
+    @media(min-width:700px){
+      .welcome-fixed-card{left:5%;right:5%;padding:16px 24px}
+      .welcome-fixed-card h1{font-size:30px}
+      .welcome-fixed-card h2{font-size:21px}
+      .welcome-fixed-card p{font-size:16px}
+    }
     .view{display:none;padding:0 10px 10px}
     .active-view{display:block!important}
     .card{background:white;border-radius:14px;padding:7px;margin-bottom:10px}
@@ -64,6 +93,18 @@
   </div>
 
   <div class="category-bar" id="categoryBar"></div>
+
+  <section class="welcome-fixed-card" aria-label="Hureeyerhs Limited welcome and services">
+    <h1>Welcome to Hureeyerhs Limited 💗</h1>
+    <p class="welcome-intro">Explore our services below — tap any button to continue.</p>
+    <nav class="welcome-service-buttons" aria-label="Our services">
+      <button type="button" class="welcome-service-btn scent-btn" data-service="scents">🌸 SCENTS BY HUREEYERHS</button>
+      <button type="button" class="welcome-service-btn beauty-btn" data-service="beauty">✨ HUREEYERHS BEAUTY</button>
+      <button type="button" class="welcome-service-btn craft-btn" data-service="craft">🪡 CRAFT BY HUREEYERHS</button>
+      <button type="button" class="welcome-service-btn travel-btn" data-service="travel">✈️ HUREEYERHS TRAVELS AND LOGISTICS</button>
+      <button type="button" class="welcome-service-btn proof-btn" data-service="proof">✓ PROOF AND CREDIBILITY</button>
+    </nav>
+  </section>
 
   <div id="aboutView" class="view active-view">
     <div class="card">
@@ -140,6 +181,45 @@
     <button class="btn" onclick="logoutAdmin()" style="background:red">Logout</button>
     </div>
   </div>
+
+<script>
+(function(){
+  const banner = document.querySelector('.welcome-fixed-card');
+  const categoryBar = document.getElementById('categoryBar');
+  if (!banner) return;
+  function updateWelcomeSpacing(){
+    const categoryBottom = categoryBar ? categoryBar.getBoundingClientRect().bottom : 68;
+    banner.style.top = (categoryBottom + 8) + 'px';
+    const bannerBottom = banner.getBoundingClientRect().bottom;
+    document.body.style.paddingTop = (bannerBottom + 8) + 'px';
+  }
+  window.addEventListener('load', updateWelcomeSpacing);
+  window.addEventListener('resize', updateWelcomeSpacing);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateWelcomeSpacing);
+  updateWelcomeSpacing();
+  const observer = new MutationObserver(updateWelcomeSpacing);
+  observer.observe(banner, {childList:true,subtree:true,characterData:true});
+
+  // Service destinations can be connected to their dedicated pages as they are created.
+  const serviceDestinations = {
+    scents: "perfume.html",
+    beauty: "makeup.html",
+    craft: "home-decor.html",
+    travel: "travel-and-tour.html",
+    proof: "#customerTestimonials"
+  };
+  document.querySelectorAll(".welcome-service-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      const destination = serviceDestinations[button.dataset.service];
+      if (destination && destination.startsWith("#")) {
+        document.querySelector(destination)?.scrollIntoView({behavior:"smooth",block:"start"});
+      } else if (destination) {
+        window.location.href = destination;
+      }
+    });
+  });
+})();
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
