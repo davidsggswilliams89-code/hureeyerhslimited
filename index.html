@@ -55,8 +55,9 @@
     }
     .view{display:none;padding:0 10px 10px}
     .active-view{display:block!important}
-    /* Keep the first product image just below the fixed category header. */
-    .view.active-view:not(#aboutView):not(#scentsView){padding-top:8px;box-sizing:border-box}
+    /* Product category pages: keep the product image container exactly 4px below the fixed category header. */
+    .view.active-view:not(#aboutView):not(#scentsView){padding-top:4px;box-sizing:border-box}
+    .view.active-view:not(#aboutView):not(#scentsView) > .card:first-child{padding:0;margin-top:0}
     .card{background:white;border-radius:14px;padding:7px;margin-bottom:10px}
     .img-wrap{position:relative;overflow:hidden;border-radius:12px}
     .new-badge{position:absolute;top:8px;left:8px;background:#b00020;color:white;font-size:11px;padding:4px 6px;border-radius:5px;z-index:10}
