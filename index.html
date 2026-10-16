@@ -868,9 +868,9 @@ function loadCategories() {
       const value = String(entry.value || "").trim().toLowerCase();
       if (label === "home" || value === "about") {
         returnToHome(button);
-      } else if (label.includes("scents") || value.includes("scents by hureeyerh") || value === "scents" || value === "perfume") {
-        showScentsPage(button);
       } else {
+        // Product-category buttons always filter Admin-managed products only.
+        // The Scents company profile is opened only by its static service button.
         showView(entry.value, button);
       }
     });
@@ -1020,7 +1020,8 @@ function showProofPage() {
 
 function showScentsPage(activeButton = null) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active-view"));
-  document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", b === activeButton || /scents/i.test(b.textContent) || /scents/i.test(b.dataset.category || "")));
+  // Do not associate any product-category button with the Scents company page.
+  document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", Boolean(activeButton) && b === activeButton));
   document.getElementById("scentsView")?.classList.add("active-view");
   // Keep both shared static header layers visible on the Scents view:
   // the logo/moving marquee + category strip, and the fixed welcome/services panel.
