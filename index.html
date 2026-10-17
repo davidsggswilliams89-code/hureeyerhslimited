@@ -27,7 +27,8 @@
     .category-btn.active{background:#fff!important;color:#b86200!important;border-color:#fff}
     /* Static welcome banner stays beneath the category bar while page content scrolls behind it. */
     .welcome-fixed-card{
-      position:fixed;top:76px;left:10px;right:10px;z-index:2500;
+      position:fixed;top:76px;left:10px;right:10px;z-index:4500;
+      max-height:calc(100vh - 86px);overflow-y:auto;-webkit-overflow-scrolling:touch;
       box-sizing:border-box;background:#fff;border-radius:20px;
       padding:14px 16px 16px;text-align:center;
       box-shadow:0 3px 14px rgba(0,0,0,.08);
@@ -669,6 +670,17 @@ let adminPanel, delCat, delList, aName, aPrice, aDescription, aCategory, aboutVi
 const WHATSAPP_NUMBER = "2348064211714"; // Hureeyerhs Limited WhatsApp number in international format without + or spaces.
 
 document.addEventListener("DOMContentLoaded", () => {
+  const positionWelcomePanel = () => {
+    const bar = document.getElementById("categoryBar");
+    const banner = document.querySelector(".welcome-fixed-card");
+    if (!banner) return;
+    const barBottom = bar ? bar.getBoundingClientRect().bottom : 68;
+    banner.style.top = Math.max(76, barBottom + 8) + "px";
+    banner.style.maxHeight = "calc(100vh - " + (Math.max(76, barBottom + 8) + 10) + "px)";
+  };
+  positionWelcomePanel();
+  window.addEventListener("resize", positionWelcomePanel);
+  setTimeout(positionWelcomePanel, 100);
   const logo = document.getElementById("brandLogo");
   let logoClicks = 0;
   let resetClickTimer = null;
@@ -840,7 +852,10 @@ async function loadCategoriesFromFirebase() {
       if (name && name.toLowerCase() !== "workshop" && !categories.some(c => c.toLowerCase() === name.toLowerCase())) categories.push(name);
     }
   });
-  categories = [...new Set(categories)].sort((a,b) => a.localeCompare(b));
+  // Only show categories explicitly added through Admin in this version.
+  // Older preloaded category records are hidden from the storefront.
+  const adminAdded = new Set(JSON.parse(localStorage.getItem("hureeyerhsAdminAddedCategories") || "[]").map(x => String(x).trim().toLowerCase()));
+  categories = [...new Set(categories)].filter(name => adminAdded.has(String(name).trim().toLowerCase())).sort((a,b) => a.localeCompare(b));
   loadCategories();
   fillCats();
 }
@@ -897,6 +912,9 @@ async function addCategory() {
   if (categories.includes(newCat)) return alert("This category already exists.");
   try {
     await fb.addDoc(fb.collection(db, "categories"), { name: newCat, createdAt: Date.now() });
+    const adminAdded = JSON.parse(localStorage.getItem("hureeyerhsAdminAddedCategories") || "[]");
+    if (!adminAdded.some(x => String(x).trim().toLowerCase() === newCat.toLowerCase())) adminAdded.push(newCat);
+    localStorage.setItem("hureeyerhsAdminAddedCategories", JSON.stringify(adminAdded));
     input.value = "";
     await loadCategoriesFromFirebase();
     alert("Category added successfully ✅");
@@ -916,7 +934,9 @@ async function deleteCategory() {
       const raw = getDataValue(item.data() || {}, ["name","category","title"]);
       if (String(raw || "").trim().toLowerCase() === cat) await fb.deleteDoc(fb.doc(db, "categories", item.id));
     }
-    categories = categories.filter(c => c !== cat);
+    categories = categories.filter(c => c.toLowerCase() !== String(cat).toLowerCase());
+    const adminAdded = JSON.parse(localStorage.getItem("hureeyerhsAdminAddedCategories") || "[]").filter(x => String(x).trim().toLowerCase() !== String(cat).toLowerCase());
+    localStorage.setItem("hureeyerhsAdminAddedCategories", JSON.stringify(adminAdded));
     loadCategories();
     fillCats();
     alert("Category deleted successfully. Products were kept.");
