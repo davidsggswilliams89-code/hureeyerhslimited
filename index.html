@@ -28,7 +28,8 @@
     /* Static welcome banner stays beneath the category bar while page content scrolls behind it. */
     .welcome-fixed-card{
       position:fixed;top:76px;left:10px;right:10px;z-index:4500;
-      max-height:calc(100vh - 86px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+      /* Keep the complete welcome/services panel stationary; the page content scrolls behind it. */
+      max-height:none;overflow:visible;
       box-sizing:border-box;background:#fff;border-radius:20px;
       padding:14px 16px 16px;text-align:center;
       box-shadow:0 3px 14px rgba(0,0,0,.08);
@@ -613,21 +614,17 @@
   const observer = new MutationObserver(updateWelcomeSpacing);
   observer.observe(banner, {childList:true,subtree:true,characterData:true});
 
-  // STATIC WELCOME/SERVICES CONTAINER ONLY: route each service button to its own write-up.
-  // Product category buttons in #categoryBar are deliberately not handled here.
-  const staticServiceDestinations = {
-    "scents-service-page": () => showScentsPage(),
-    "beauty": () => showCosmeticsPage(),
-    "craft": () => showCraftPage(),
-    "travel": () => showTravelPage(),
-    "proof": () => showProofPage()
-  };
-  document.querySelectorAll(".welcome-fixed-card .welcome-service-btn").forEach(button => {
-    button.addEventListener("click", event => {
-      event.preventDefault();
-      event.stopPropagation();
-      const openDestination = staticServiceDestinations[button.dataset.service];
-      if (openDestination) openDestination();
+  // Only the static SCENTS BY HUREEYERHS service button opens the Scents write-up.
+  // The separate Admin-managed product category button is handled by loadCategories()
+  // and only filters/displays products; it never opens the Scents company profile.
+  document.querySelectorAll(".welcome-service-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      const service = button.dataset.service;
+      if (service === "scents-service-page") showScentsPage();
+      else if (service === "beauty") showCosmeticsPage();
+      else if (service === "craft") showCraftPage();
+      else if (service === "travel") showTravelPage();
+      else if (service === "proof") showProofPage();
     });
   });
 })();
