@@ -173,7 +173,7 @@
 <h1>Welcome to Hureeyerhs Limited 💗</h1>
 <p class="welcome-intro">Explore our services below — tap any button to continue.</p>
 <nav aria-label="Our services" class="welcome-service-buttons">
-<button class="welcome-service-btn scent-btn" data-service="scents" type="button">🌸 SCENTS BY HUREEYERHS</button>
+<button class="welcome-service-btn scent-btn" data-service="scents-service-page" type="button">🌸 SCENTS BY HUREEYERHS</button>
 <button class="welcome-service-btn beauty-btn" data-service="beauty" type="button">✨ HUREEYERHS BEAUTY</button>
 <button class="welcome-service-btn craft-btn" data-service="craft" type="button">🪡 CRAFT BY HUREEYERHS</button>
 <button class="welcome-service-btn travel-btn" data-service="travel" type="button">✈️ HUREEYERHS TRAVELS AND LOGISTICS</button>
@@ -619,7 +619,7 @@
   document.querySelectorAll(".welcome-service-btn").forEach(button => {
     button.addEventListener("click", () => {
       const service = button.dataset.service;
-      if (service === "scents") showScentsPage();
+      if (service === "scents-service-page") showScentsPage();
       else if (service === "beauty") showCosmeticsPage();
       else if (service === "craft") showCraftPage();
       else if (service === "travel") showTravelPage();
