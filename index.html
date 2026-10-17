@@ -27,8 +27,7 @@
     .category-btn.active{background:#fff!important;color:#b86200!important;border-color:#fff}
     /* Static welcome banner stays beneath the category bar while page content scrolls behind it. */
     .welcome-fixed-card{
-      position:fixed;top:76px;left:10px;right:10px;z-index:4500;
-      max-height:calc(100vh - 86px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+      position:fixed;top:76px;left:10px;right:10px;z-index:2500;
       box-sizing:border-box;background:#fff;border-radius:20px;
       padding:14px 16px 16px;text-align:center;
       box-shadow:0 3px 14px rgba(0,0,0,.08);
@@ -173,7 +172,7 @@
 <h1>Welcome to Hureeyerhs Limited 💗</h1>
 <p class="welcome-intro">Explore our services below — tap any button to continue.</p>
 <nav aria-label="Our services" class="welcome-service-buttons">
-<button class="welcome-service-btn scent-btn" data-service="scents-service-page" type="button">🌸 SCENTS BY HUREEYERHS</button>
+<button class="welcome-service-btn scent-btn" data-service="scents" type="button">🌸 SCENTS BY HUREEYERHS</button>
 <button class="welcome-service-btn beauty-btn" data-service="beauty" type="button">✨ HUREEYERHS BEAUTY</button>
 <button class="welcome-service-btn craft-btn" data-service="craft" type="button">🪡 CRAFT BY HUREEYERHS</button>
 <button class="welcome-service-btn travel-btn" data-service="travel" type="button">✈️ HUREEYERHS TRAVELS AND LOGISTICS</button>
@@ -613,17 +612,17 @@
   const observer = new MutationObserver(updateWelcomeSpacing);
   observer.observe(banner, {childList:true,subtree:true,characterData:true});
 
-  // Only the static SCENTS BY HUREEYERHS service button opens the Scents write-up.
-  // The separate Admin-managed product category button is handled by loadCategories()
-  // and only filters/displays products; it never opens the Scents company profile.
+  // Static welcome-container service buttons open only their own write-up.
+  // Product-header category buttons remain product filters only.
   document.querySelectorAll(".welcome-service-btn").forEach(button => {
     button.addEventListener("click", () => {
-      const service = button.dataset.service;
-      if (service === "scents-service-page") showScentsPage();
-      else if (service === "beauty") showCosmeticsPage();
-      else if (service === "craft") showCraftPage();
-      else if (service === "travel") showTravelPage();
-      else if (service === "proof") showProofPage();
+      switch (button.dataset.service) {
+        case "scents": showScentsPage(); break;
+        case "beauty": showCosmeticsPage(); break;
+        case "craft": showCraftPage(); break;
+        case "travel": showTravelPage(); break;
+        case "proof": showProofPage(); break;
+      }
     });
   });
 })();
@@ -668,19 +667,11 @@ let tAuto = null;
 let adminPanel, delCat, delList, aName, aPrice, aDescription, aCategory, aboutView;
 
 const WHATSAPP_NUMBER = "2348064211714"; // Hureeyerhs Limited WhatsApp number in international format without + or spaces.
+const DEFAULT_CATEGORIES = [
+  "Hureeyerhs Cosmetic", "Hureeyerhs Make Up", "Hureeyerhs Home-Decor", "Hureeyerhs Travel and Tour"
+];
 
 document.addEventListener("DOMContentLoaded", () => {
-  const positionWelcomePanel = () => {
-    const bar = document.getElementById("categoryBar");
-    const banner = document.querySelector(".welcome-fixed-card");
-    if (!banner) return;
-    const barBottom = bar ? bar.getBoundingClientRect().bottom : 68;
-    banner.style.top = Math.max(76, barBottom + 8) + "px";
-    banner.style.maxHeight = "calc(100vh - " + (Math.max(76, barBottom + 8) + 10) + "px)";
-  };
-  positionWelcomePanel();
-  window.addEventListener("resize", positionWelcomePanel);
-  setTimeout(positionWelcomePanel, 100);
   const logo = document.getElementById("brandLogo");
   let logoClicks = 0;
   let resetClickTimer = null;
@@ -736,10 +727,10 @@ async function initApp() {
     await loadCategoriesFromFirebase();
   } catch (error) {
     console.error("Could not load categories from Firestore:", error);
-    categories = [];
+    categories = [...DEFAULT_CATEGORIES];
     loadCategories();
     fillCats();
-    showFirebaseError(error, "Categories could not load. Add categories through Admin after Firestore access is restored.");
+    showFirebaseError(error, "Categories are temporary until Firestore access is fixed.");
   }
   try {
     await loadProductsFromFirebase();
@@ -852,10 +843,14 @@ async function loadCategoriesFromFirebase() {
       if (name && name.toLowerCase() !== "workshop" && !categories.some(c => c.toLowerCase() === name.toLowerCase())) categories.push(name);
     }
   });
-  // Only show categories explicitly added through Admin in this version.
-  // Older preloaded category records are hidden from the storefront.
-  const adminAdded = new Set(JSON.parse(localStorage.getItem("hureeyerhsAdminAddedCategories") || "[]").map(x => String(x).trim().toLowerCase()));
-  categories = [...new Set(categories)].filter(name => adminAdded.has(String(name).trim().toLowerCase())).sort((a,b) => a.localeCompare(b));
+  /* Seed textile categories only when the new project's category collection is empty. */
+  if (!categories.length) {
+    for (const name of DEFAULT_CATEGORIES) {
+      await fb.addDoc(fb.collection(db, "categories"), { name, createdAt: Date.now() });
+    }
+    categories = [...DEFAULT_CATEGORIES];
+  }
+  categories = [...new Set(categories)].sort((a,b) => a.localeCompare(b));
   loadCategories();
   fillCats();
 }
@@ -912,9 +907,6 @@ async function addCategory() {
   if (categories.includes(newCat)) return alert("This category already exists.");
   try {
     await fb.addDoc(fb.collection(db, "categories"), { name: newCat, createdAt: Date.now() });
-    const adminAdded = JSON.parse(localStorage.getItem("hureeyerhsAdminAddedCategories") || "[]");
-    if (!adminAdded.some(x => String(x).trim().toLowerCase() === newCat.toLowerCase())) adminAdded.push(newCat);
-    localStorage.setItem("hureeyerhsAdminAddedCategories", JSON.stringify(adminAdded));
     input.value = "";
     await loadCategoriesFromFirebase();
     alert("Category added successfully ✅");
@@ -934,9 +926,7 @@ async function deleteCategory() {
       const raw = getDataValue(item.data() || {}, ["name","category","title"]);
       if (String(raw || "").trim().toLowerCase() === cat) await fb.deleteDoc(fb.doc(db, "categories", item.id));
     }
-    categories = categories.filter(c => c.toLowerCase() !== String(cat).toLowerCase());
-    const adminAdded = JSON.parse(localStorage.getItem("hureeyerhsAdminAddedCategories") || "[]").filter(x => String(x).trim().toLowerCase() !== String(cat).toLowerCase());
-    localStorage.setItem("hureeyerhsAdminAddedCategories", JSON.stringify(adminAdded));
+    categories = categories.filter(c => c !== cat);
     loadCategories();
     fillCats();
     alert("Category deleted successfully. Products were kept.");
@@ -1062,11 +1052,18 @@ function returnToHome(activeButton = null) {
   setTimeout(() => window.dispatchEvent(new Event("resize")), 50);
 }
 function showView(type, el) {
+  // The static welcome/services banner belongs to HOME only. Product categories
+  // show their product list without the welcome banner taking up screen space.
+  const welcomeBanner = document.querySelector(".welcome-fixed-card");
+  if (welcomeBanner) welcomeBanner.style.display = (String(type).toLowerCase() === "about") ? "" : "none";
+  document.body.style.paddingTop = "0";
   document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", b === el || (!el && b.dataset.category === type)));
   localStorage.setItem("hureeyerhsActiveView", type);
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active-view"));
   if (type === "about") {
+    if (welcomeBanner) welcomeBanner.style.display = "";
     aboutView?.classList.add("active-view");
+    window.scrollTo({top: 0, behavior: "smooth"});
     return;
   }
 
@@ -1456,9 +1453,8 @@ function restoreActiveView() {
   }
   const exists = saved === "about" || categories.includes(saved);
   showView(exists ? saved : "about", null);
-  const banner = document.querySelector(".welcome-fixed-card");
-  if (banner) banner.style.display = "";
-  document.body.style.paddingTop = "";
+  // showView controls whether the welcome banner is visible for the restored view.
+  document.body.style.paddingTop = "0";
 }
 
 function escapeHtml(value) {
