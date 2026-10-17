@@ -8,7 +8,7 @@
 <meta content="Hureeyerhs Limited — cosmetics, makeup, home decoration, travel and tour services." name="description"/>
 <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 <style>
-    body{margin:0;font-family:Arial,sans-serif;background:#fff7ed;padding-top:68px}
+    body{margin:0;font-family:Arial,sans-serif;background:#fff7ed;padding-top:76px}
     .top-marquee{background:#111;position:fixed;top:0;width:100%;height:30px;display:flex;align-items:center;overflow:hidden;z-index:3000}
     .logo{height:30px;margin:0;padding:0;object-fit:contain;background:#111;z-index:10}
     .marquee-wrapper{position:absolute;width:100%;overflow:hidden;z-index:1}
@@ -25,13 +25,14 @@
     .category-bar{position:fixed;top:30px;left:0;right:0;width:100%;height:38px;min-height:38px;box-sizing:border-box;display:flex;align-items:center;gap:4px;padding:0 6px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;z-index:4000;background:linear-gradient(90deg,#111111,#f28c00);box-shadow:0 2px 8px rgba(0,0,0,.2);-webkit-overflow-scrolling:touch}
     .category-btn{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto;min-height:28px;box-sizing:border-box;color:#fff!important;background:transparent;padding:5px 12px;margin:0;border:1px solid rgba(255,255,255,.35);border-radius:16px;white-space:nowrap;cursor:pointer;font-family:Arial,sans-serif;font-size:14px!important;font-weight:700!important;line-height:1.2!important;text-indent:0;visibility:visible!important;opacity:1!important;transition:background .2s,color .2s}
     .category-btn.active{background:#fff!important;color:#b86200!important;border-color:#fff}
-    /* Welcome/services is a normal container at the top of the Home view only. */
+    /* Static welcome banner stays beneath the category bar while page content scrolls behind it. */
     .welcome-fixed-card{
-      position:relative;top:auto;left:auto;right:auto;z-index:auto;
-      width:calc(100% - 20px);margin:12px auto 16px;
-      max-height:none;overflow:visible;box-sizing:border-box;
-      background:#fff;border-radius:20px;padding:14px 16px 16px;text-align:center;
-      box-shadow:0 3px 14px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.04);
+      position:fixed;top:76px;left:10px;right:10px;z-index:4500;
+      max-height:calc(100vh - 86px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+      box-sizing:border-box;background:#fff;border-radius:20px;
+      padding:14px 16px 16px;text-align:center;
+      box-shadow:0 3px 14px rgba(0,0,0,.08);
+      border:1px solid rgba(0,0,0,.04);
     }
     .welcome-fixed-card h1{margin:0 0 7px;font-size:clamp(20px,5.2vw,30px);line-height:1.18;font-weight:800;color:#080808}
     .welcome-fixed-card h2{margin:0 0 7px;font-size:clamp(14px,3.8vw,21px);line-height:1.25;color:#111}
@@ -55,6 +56,8 @@
       .welcome-fixed-card p{font-size:16px}
     }
     .view{display:none;padding:0 10px 10px}
+    /* Keep product cards just 8px below the fixed top marquee and category bar. */
+    .view:not(#aboutView){padding-top:8px}
     .active-view{display:block!important}
     .card{background:white;border-radius:14px;padding:7px;margin-bottom:10px}
     .img-wrap{position:relative;overflow:hidden;border-radius:12px}
@@ -168,8 +171,6 @@
 <div class="marquee-wrapper"><div class="marquee-text">HUREEYERHS LIMITED 💗 • COSMETIC • MAKE UP • HOME-DECOR • TRAVEL AND TOUR •</div></div>
 </div>
 <div class="category-bar" id="categoryBar"></div>
-
-<div class="view active-view" id="aboutView">
 <section aria-label="Hureeyerhs Limited welcome and services" class="welcome-fixed-card">
 <h1>Welcome to Hureeyerhs Limited 💗</h1>
 <p class="welcome-intro">Explore our services below — tap any button to continue.</p>
@@ -181,7 +182,7 @@
 <button class="welcome-service-btn proof-btn" data-service="proof" type="button">✓ PROOF AND CREDIBILITY</button>
 </nav>
 </section>
-
+<div class="view active-view" id="aboutView">
 <div class="card">
 <section aria-label="Hureeyerhs Limited company profile" class="company-profile">
 <header class="profile-hero">
@@ -614,17 +615,21 @@
   const observer = new MutationObserver(updateWelcomeSpacing);
   observer.observe(banner, {childList:true,subtree:true,characterData:true});
 
-  // Only the static SCENTS BY HUREEYERHS service button opens the Scents write-up.
-  // The separate Admin-managed product category button is handled by loadCategories()
-  // and only filters/displays products; it never opens the Scents company profile.
-  document.querySelectorAll(".welcome-service-btn").forEach(button => {
-    button.addEventListener("click", () => {
-      const service = button.dataset.service;
-      if (service === "scents-service-page") showScentsPage();
-      else if (service === "beauty") showCosmeticsPage();
-      else if (service === "craft") showCraftPage();
-      else if (service === "travel") showTravelPage();
-      else if (service === "proof") showProofPage();
+  // STATIC WELCOME/SERVICES CONTAINER ONLY: route each service button to its own write-up.
+  // Product category buttons in #categoryBar are deliberately not handled here.
+  const staticServiceDestinations = {
+    "scents-service-page": () => showScentsPage(),
+    "beauty": () => showCosmeticsPage(),
+    "craft": () => showCraftPage(),
+    "travel": () => showTravelPage(),
+    "proof": () => showProofPage()
+  };
+  document.querySelectorAll(".welcome-fixed-card .welcome-service-btn").forEach(button => {
+    button.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const openDestination = staticServiceDestinations[button.dataset.service];
+      if (openDestination) openDestination();
     });
   });
 })();
@@ -961,6 +966,15 @@ function showCosmeticsPage() {
   document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", String(b.textContent || "").trim().toLowerCase() === "home"));
   const banner = document.querySelector(".welcome-fixed-card");
   if (banner) banner.style.display = "";
+  const updateHeaderSpacing = () => {
+    const categoryBar = document.getElementById("categoryBar");
+    const categoryBottom = categoryBar ? categoryBar.getBoundingClientRect().bottom : 68;
+    if (banner) banner.style.top = (categoryBottom + 8) + "px";
+    document.body.style.paddingTop = ((banner ? banner.getBoundingClientRect().bottom : categoryBottom) + 8) + "px";
+  };
+  updateHeaderSpacing();
+  requestAnimationFrame(updateHeaderSpacing);
+  setTimeout(updateHeaderSpacing, 100);
   window.scrollTo({top: 0, behavior: "smooth"});
   localStorage.setItem("hureeyerhsActiveView", "cosmetics-page");
 }
@@ -971,6 +985,15 @@ function showCraftPage() {
   document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", String(b.textContent || "").trim().toLowerCase() === "home"));
   const banner = document.querySelector(".welcome-fixed-card");
   if (banner) banner.style.display = "";
+  const updateHeaderSpacing = () => {
+    const categoryBar = document.getElementById("categoryBar");
+    const categoryBottom = categoryBar ? categoryBar.getBoundingClientRect().bottom : 68;
+    if (banner) banner.style.top = (categoryBottom + 8) + "px";
+    document.body.style.paddingTop = ((banner ? banner.getBoundingClientRect().bottom : categoryBottom) + 8) + "px";
+  };
+  updateHeaderSpacing();
+  requestAnimationFrame(updateHeaderSpacing);
+  setTimeout(updateHeaderSpacing, 100);
   window.scrollTo({top: 0, behavior: "smooth"});
   localStorage.setItem("hureeyerhsActiveView", "craft-page");
 }
@@ -981,6 +1004,15 @@ function showTravelPage() {
   document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", String(b.textContent || "").trim().toLowerCase() === "home"));
   const banner = document.querySelector(".welcome-fixed-card");
   if (banner) banner.style.display = "";
+  const updateHeaderSpacing = () => {
+    const categoryBar = document.getElementById("categoryBar");
+    const categoryBottom = categoryBar ? categoryBar.getBoundingClientRect().bottom : 68;
+    if (banner) banner.style.top = (categoryBottom + 8) + "px";
+    document.body.style.paddingTop = ((banner ? banner.getBoundingClientRect().bottom : categoryBottom) + 8) + "px";
+  };
+  updateHeaderSpacing();
+  requestAnimationFrame(updateHeaderSpacing);
+  setTimeout(updateHeaderSpacing, 100);
   window.scrollTo({top: 0, behavior: "smooth"});
   localStorage.setItem("hureeyerhsActiveView", "travel-page");
 }
@@ -991,6 +1023,15 @@ function showProofPage() {
   document.getElementById("proofView")?.classList.add("active-view");
   const banner = document.querySelector(".welcome-fixed-card");
   if (banner) banner.style.display = "";
+  const updateHeaderSpacing = () => {
+    const categoryBar = document.getElementById("categoryBar");
+    const categoryBottom = categoryBar ? categoryBar.getBoundingClientRect().bottom : 68;
+    if (banner) banner.style.top = (categoryBottom + 8) + "px";
+    document.body.style.paddingTop = ((banner ? banner.getBoundingClientRect().bottom : categoryBottom) + 8) + "px";
+  };
+  updateHeaderSpacing();
+  requestAnimationFrame(updateHeaderSpacing);
+  setTimeout(updateHeaderSpacing, 100);
   localStorage.setItem("hureeyerhsActiveView", "proof-page");
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -1004,6 +1045,15 @@ function showScentsPage(activeButton = null) {
   // the logo/moving marquee + category strip, and the fixed welcome/services panel.
   const banner = document.querySelector(".welcome-fixed-card");
   if (banner) banner.style.display = "";
+  const updateHeaderSpacing = () => {
+    const categoryBar = document.getElementById("categoryBar");
+    const categoryBottom = categoryBar ? categoryBar.getBoundingClientRect().bottom : 68;
+    if (banner) banner.style.top = (categoryBottom + 8) + "px";
+    document.body.style.paddingTop = ((banner ? banner.getBoundingClientRect().bottom : categoryBottom) + 8) + "px";
+  };
+  updateHeaderSpacing();
+  requestAnimationFrame(updateHeaderSpacing);
+  setTimeout(updateHeaderSpacing, 100);
   window.scrollTo({top: 0, behavior: "smooth"});
   localStorage.setItem("hureeyerhsActiveView", "scents-page");
 }
@@ -1018,10 +1068,16 @@ function returnToHome(activeButton = null) {
   setTimeout(() => window.dispatchEvent(new Event("resize")), 50);
 }
 function showView(type, el) {
+  // Product-category views must start directly below the fixed header/category bar.
+  const welcomePanel = document.querySelector(".welcome-fixed-card");
+  if (welcomePanel) welcomePanel.style.display = "none";
+  document.body.style.paddingTop = "76px"; // 68px header/category stack + 8px breathing room
   document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", b === el || (!el && b.dataset.category === type)));
   localStorage.setItem("hureeyerhsActiveView", type);
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active-view"));
   if (type === "about") {
+    if (welcomePanel) welcomePanel.style.display = "";
+    document.body.style.paddingTop = "0";
     aboutView?.classList.add("active-view");
     return;
   }
