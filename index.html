@@ -731,22 +731,35 @@ async function addCategory() {
 }
 
 async function deleteCategory() {
-  const cat = document.getElementById("catDelete")?.value;
-  if (!cat) return;
-  if (!confirm(`Delete the "${cat}" category? Products in Firestore will not be deleted.`)) return;
+  const selectedCategory = document.getElementById("catDelete")?.value;
+  if (!selectedCategory) return;
+  const normalizedCategory = String(selectedCategory).trim().toLowerCase();
+  if (!confirm(`Delete the "${selectedCategory}" category from Firebase? Products assigned to it will be kept.`)) return;
+
   try {
     const snap = await fb.getDocs(fb.collection(db, "categories"));
-    for (const item of snap.docs) {
-      const raw = getDataValue(item.data() || {}, ["name","category","title"]);
-      if (String(raw || "").trim().toLowerCase() === cat) await fb.deleteDoc(fb.doc(db, "categories", item.id));
+    const matchingDocs = snap.docs.filter(item => {
+      const raw = getDataValue(item.data() || {}, ["name", "category", "title"]);
+      return String(raw || "").trim().toLowerCase() === normalizedCategory;
+    });
+
+    if (!matchingDocs.length) {
+      await loadCategoriesFromFirebase();
+      alert("That category was not found in Firebase. The category list has been refreshed.");
+      return;
     }
-    categories = categories.filter(c => c !== cat);
-    loadCategories();
-    fillCats();
-    alert("Category deleted successfully. Products were kept.");
+
+    // Delete every matching Firebase category document, regardless of letter case.
+    for (const item of matchingDocs) {
+      await fb.deleteDoc(fb.doc(db, "categories", item.id));
+    }
+
+    // Reload from Firebase so the category button and Admin dropdowns reflect saved data.
+    await loadCategoriesFromFirebase();
+    alert(`Category "${selectedCategory}" deleted from Firebase successfully. Products assigned to it were kept.`);
   } catch (error) {
-    console.error(error);
-    alert("Failed to delete category ❌\n" + (error.code || error.message || ""));
+    console.error("Failed to delete category from Firebase:", error);
+    alert("Failed to delete category from Firebase ❌\n" + (error.code || error.message || "Please check your Firestore permissions and try again."));
   }
 }
 
