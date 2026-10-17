@@ -1466,11 +1466,10 @@ function restoreActiveView() {
     showScentsPage();
     return;
   }
-  const exists = saved === "about" || categories.includes(saved);
+  const exists = saved === "about" || categories.some(category => String(category).trim().toLowerCase() === String(saved).trim().toLowerCase());
+  // Let showView set the correct header visibility for the restored destination.
+  // Do not unconditionally reveal the static welcome/services panel after refresh.
   showView(exists ? saved : "about", null);
-  const banner = document.querySelector(".welcome-fixed-card");
-  if (banner) banner.style.display = "";
-  document.body.style.paddingTop = "";
 }
 
 function escapeHtml(value) {
