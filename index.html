@@ -667,10 +667,6 @@ let tAuto = null;
 let adminPanel, delCat, delList, aName, aPrice, aDescription, aCategory, aboutView;
 
 const WHATSAPP_NUMBER = "2348064211714"; // Hureeyerhs Limited WhatsApp number in international format without + or spaces.
-const DEFAULT_CATEGORIES = [
-  "Hureeyerhs Cosmetic", "Hureeyerhs Make Up", "Hureeyerhs Home-Decor", "Hureeyerhs Travel and Tour"
-];
-
 document.addEventListener("DOMContentLoaded", () => {
   const logo = document.getElementById("brandLogo");
   let logoClicks = 0;
@@ -727,10 +723,12 @@ async function initApp() {
     await loadCategoriesFromFirebase();
   } catch (error) {
     console.error("Could not load categories from Firestore:", error);
-    categories = [...DEFAULT_CATEGORIES];
+    // Do not generate hard-coded product categories if Firebase cannot load them.
+    // Keep the category bar limited to HOME until Admin/Firebase categories are available.
+    categories = [];
     loadCategories();
     fillCats();
-    showFirebaseError(error, "Categories are temporary until Firestore access is fixed.");
+    showFirebaseError(error, "Product categories could not load from Firebase.");
   }
   try {
     await loadProductsFromFirebase();
@@ -843,13 +841,8 @@ async function loadCategoriesFromFirebase() {
       if (name && name.toLowerCase() !== "workshop" && !categories.some(c => c.toLowerCase() === name.toLowerCase())) categories.push(name);
     }
   });
-  /* Seed textile categories only when the new project's category collection is empty. */
-  if (!categories.length) {
-    for (const name of DEFAULT_CATEGORIES) {
-      await fb.addDoc(fb.collection(db, "categories"), { name, createdAt: Date.now() });
-    }
-    categories = [...DEFAULT_CATEGORIES];
-  }
+  // No default categories are created here. Only categories already saved in
+  // Firebase or added by the Admin are shown in the product category bar.
   categories = [...new Set(categories)].sort((a,b) => a.localeCompare(b));
   loadCategories();
   fillCats();
